@@ -1,6 +1,5 @@
 package com.example.proposal.model;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,61 +7,59 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-
 @Entity
 @Table(name = "proposer")
-public class Proposer
-{
-	
+public class Proposer {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long Id;
-	
+
 	@Column(name = "full_name")
 	private String name;
-	
+
 	@Column(name = "gender")
 	private String gender;
-	
+
 	@Column(name = "date_of_birth")
 	private String dateofbirth;
-	
+
 	@Column(name = "annual_income")
 	private String annualincome;
-	
+
 	@Column(name = "pan_number")
 	private String pannumber;
-	
 
 	@Column(name = "aadhar_number")
 	private String aadharnumber;
-	
+
 	@Column(name = "martial_status")
 	private String maritalstatus;
-	
-	
+
 	@Column(name = "email")
 	private String email;
-	
-	
+
 	@Column(name = "phone_number")
 	private String phonenumber;
-	
+
 	@Column(name = "address")
 	private String address;
-	
+
 	@Column(name = "pin_code")
 	private long pincode;
-	
+
 	@Column(name = "city")
 	private String city;
-	
+
 	@Column(name = "state")
 	private String state;
 
-	public Proposer(Long id, String name, String gender, String dateofbirth, String annualincome,
-			String pannumber, String aadharnumber, String maritalstatus, String email, String phonenumber,
-			String address, long pincode, String city, String state) {
+	@Column(name = "status")
+	private Character status ;
+
+	public Proposer(Long id, String name, String gender, String dateofbirth, String annualincome, String pannumber,
+			String aadharnumber, String maritalstatus, String email, String phonenumber, String address, long pincode,
+			String city, String state, Character status) {
 		super();
 		Id = id;
 		this.name = name;
@@ -78,16 +75,13 @@ public class Proposer
 		this.pincode = pincode;
 		this.city = city;
 		this.state = state;
+		this.status = status;
 	}
-	
-	
 
 	public Proposer() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
-
 
 	public Long getId() {
 		return Id;
@@ -202,9 +196,17 @@ public class Proposer
 	}
 
 	
-	
-	
-	
-	
+	 public Character getStatus() 
+	 { 
+		 return status; 
+	 }
+	  
+	  
+	 
+	  public void setStatus(Character status) 
+	  { 
+		  this.status = status; 
+	  }
+	 
 
 }

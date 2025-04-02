@@ -19,13 +19,24 @@ public class ProposalServiceImpl implements ProposalService
 	@Override
 	public Proposer register(Proposer proposer) 
 	{
+		proposer.setStatus('Y');
 		return proposalRepo.save(proposer);
 	}
 
 	@Override
-	public void delete(Long id) 
+	public Proposer delete(Long id) throws Exception	
 	{
-		proposalRepo.deleteById(id);
+		Optional<Proposer> deleteProposer = proposalRepo.findById(id);
+		Proposer updatedeletedstatus = deleteProposer.get();
+		if(updatedeletedstatus.getStatus() == 'N')
+		{
+			throw new Exception("Proposer is deleted");
+			
+		}
+		updatedeletedstatus.setStatus('N');
+		return proposalRepo.save(updatedeletedstatus);
+		
+		
 	}
 
 	@Override
@@ -60,7 +71,7 @@ public class ProposalServiceImpl implements ProposalService
 		return updatedProposer;
 		
 	}
-	
+
 	
 
 }

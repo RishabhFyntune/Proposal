@@ -23,7 +23,7 @@ import jakarta.websocket.server.PathParam;
 
 @RestController
 //@RequestMapping("/proposer")
-public class ProposerController 
+public class ProposerController extends Throwable
 {
 
     private ProposalRepo proposalRepo;
@@ -45,9 +45,10 @@ public class ProposerController
 	}
 	
 	@DeleteMapping("/delete/{id}")
-	public void deletebyid(@PathVariable Long id)
+	public void deletebyid(Character status ,@PathVariable Long id) throws Exception
 	{
 		proposalServiceImpl.delete(id);
+
 	}
 	
 	@GetMapping("/getall")
