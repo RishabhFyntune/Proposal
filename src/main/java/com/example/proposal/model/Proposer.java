@@ -46,7 +46,7 @@ public class Proposer {
 	private String address;
 
 	@Column(name = "pin_code")
-	private long pincode;
+	private String pincode;
 
 	@Column(name = "city")
 	private String city;
@@ -58,7 +58,7 @@ public class Proposer {
 	private Character status ;
 
 	public Proposer(Long id, String name, String gender, String dateofbirth, String annualincome, String pannumber,
-			String aadharnumber, String maritalstatus, String email, String phonenumber, String address, long pincode,
+			String aadharnumber, String maritalstatus, String email, String phonenumber, String address, String pincode,
 			String city, String state, Character status) {
 		super();
 		Id = id;
@@ -171,11 +171,11 @@ public class Proposer {
 		this.address = address;
 	}
 
-	public long getPincode() {
+	public String getPincode() {
 		return pincode;
 	}
 
-	public void setPincode(long pincode) {
+	public void setPincode(String pincode) {
 		this.pincode = pincode;
 	}
 

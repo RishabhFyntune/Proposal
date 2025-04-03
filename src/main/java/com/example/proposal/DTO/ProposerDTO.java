@@ -12,7 +12,7 @@ public class ProposerDTO {
     private String email;
     private String phonenumber;
     private String address;
-    private long pincode;
+    private String pincode;
     private String city;
     private String state;
     private Character status;
@@ -23,7 +23,7 @@ public class ProposerDTO {
 
     public ProposerDTO(String name, String gender, String dateofbirth, String annualincome, 
                        String pannumber, String aadharnumber, String maritalstatus, 
-                       String email, String phonenumber, String address, long pincode, 
+                       String email, String phonenumber, String address, String pincode,
                        String city, String state, Character status) {
         this.name = name;
         this.gender = gender;
@@ -121,11 +121,11 @@ public class ProposerDTO {
         this.address = address;
     }
 
-    public long getPincode() {
+    public String getPincode() {
         return pincode;
     }
 
-    public void setPincode(long pincode) {
+    public void setPincode(String pincode) {
         this.pincode = pincode;
     }
 

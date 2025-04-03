@@ -3,6 +3,7 @@ package com.example.proposal.Controller;
 import java.util.Arrays;
 import java.util.List;
 
+import com.example.proposal.ResponseHandler.ResponseHandler;
 import com.example.proposal.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -44,7 +45,7 @@ public class ProposerController
 	public ResponseEntity<?> deletebyid(@PathVariable Long id) throws Exception
 	{
 		proposalService.delete(id);
-		return ResponseEntity.ok("Proposer by id" + id + "deleted successfull"); 
+		return ResponseEntity.ok("Proposer by id " + id + "deleted successfull");
 
 	}
 
@@ -68,19 +69,39 @@ public class ProposerController
 	 */
 	
 
-	@PostMapping("/dtoregister")
+/*	@PostMapping("/dtoregister")
 	public ResponseEntity<Proposer> dtoregister(@RequestBody ProposerDTO proposerDTO )
 	{
 	   Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
 		return new ResponseEntity<Proposer>(registerdto,HttpStatus.OK);
 
+	}*/
+
+	@PostMapping("/dtoregister")
+	public ResponseEntity<ResponseHandler<Proposer>> dtoregister(@RequestBody ProposerDTO proposerDTO) {
+
+		Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
+
+		ResponseHandler<Proposer> responseHandler = new ResponseHandler<>();
+
+
+		responseHandler.setData(registerdto);
+		responseHandler.setStatus("success");
+		responseHandler.setMessage("Proposer registered successfully");
+
+		return new ResponseEntity<>(responseHandler, HttpStatus.OK);
 	}
+
+
 
 
 	@PutMapping("/update/{id}") 
 	public Proposer newProposer(@PathVariable Long id, @RequestBody ProposerDTO  updatedProposerdto) { 
 		return proposalService.updatedto(id, updatedProposerdto);
 	 }
+
+
+	 // *********************************************** Enum *************************************************************
 
 	 @GetMapping("/getgender")
 	public List<Gender> getallgender()
@@ -111,10 +132,17 @@ public class ProposerController
 		return Arrays.asList(Title.values());
 	}
 
+
+	// *********************************** Pagination ***********************************************************************
+
+
 	@GetMapping("/getpage/{name}")
 	public Page<Proposer> getbyname(@PathVariable String name , @RequestParam(defaultValue = "0")int page, @RequestParam(defaultValue = "5")int size)
 	{
 		return proposalRepo.findByName(name, PageRequest.of(page,size));
 	}
+
+
+
 
 }
