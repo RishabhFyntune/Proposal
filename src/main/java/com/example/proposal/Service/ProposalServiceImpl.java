@@ -119,6 +119,6 @@ public class ProposalServiceImpl implements ProposalService
 		return proposalRepo.save(proposer);
 	}
 
-	
+
 
 }
