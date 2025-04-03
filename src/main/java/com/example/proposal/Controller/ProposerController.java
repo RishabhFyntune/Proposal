@@ -1,7 +1,10 @@
 package com.example.proposal.Controller;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 
+import com.example.proposal.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.proposal.DTO.ProposerDTO;
 import com.example.proposal.Repository.ProposalRepo;
 import com.example.proposal.Service.ProposalService;
-import com.example.proposal.model.Proposer;
 
 @RestController
 //@RequestMapping("/proposer")
@@ -80,8 +82,35 @@ public class ProposerController
 	@PutMapping("/update/{id}") 
 	public Proposer newProposer(@PathVariable Long id, @RequestBody ProposerDTO  updatedProposerdto) { 
 		return proposalService.updatedto(id, updatedProposerdto);
-		
-		
 	 }
+
+	 @GetMapping("/getgender")
+	public List<Gender> getallgender()
+	 {
+		 return Arrays.asList(Gender.values());
+	 }
+
+	@GetMapping("/getmaritalstatus")
+	public List<MaritalStatus> getmarital()
+	{
+		return Arrays.asList(MaritalStatus.values());
+	}
+	@GetMapping("/getnationality")
+	public List<Nationality> getnationality()
+	{
+		return Arrays.asList(Nationality.values());
+	}
+
+	@GetMapping("/getoccupation")
+	public List<Occupation> getoccupation()
+	{
+		return Arrays.asList(Occupation.values());
+	}
+
+	@GetMapping("/gettitle")
+	public List<Title> gettitle()
+	{
+		return Arrays.asList(Title.values());
+	}
 
 }

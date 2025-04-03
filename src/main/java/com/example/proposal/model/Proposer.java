@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 public class Proposer {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long Id;
 
 	@Column(name = "full_name")
