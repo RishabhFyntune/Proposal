@@ -1,13 +1,13 @@
 package com.example.proposal.ResponseHandler;
 
-public class ResponseHandler<P> {
-    private String status;
+public class ResponseHandler<Y> {
+    private boolean status;
     private Object data;
     private String message;
 
 
 
-    public ResponseHandler(String message, Object data, String status) {
+    public ResponseHandler(String message, Object data, boolean status) {
         this.message = message;
         this.data = data;
         this.status = status;
@@ -17,11 +17,11 @@ public class ResponseHandler<P> {
     {
     }
 
-    public String getStatus() {
+    public boolean getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(boolean status) {
         this.status = status;
     }
 

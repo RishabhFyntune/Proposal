@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.example.proposal.DTO.ProposerDTO;
@@ -80,8 +79,8 @@ public class ProposalServiceImpl implements ProposalService
 	public Proposer saveproposerdto(ProposerDTO proposerDTO) {
 		Proposer proposer = new Proposer();
 
-		try {
-			if (proposerDTO.getAadharnumber() == null || proposerDTO.getAadharnumber().length() != 12) {
+			if (proposerDTO.getAadharnumber() == null || proposerDTO.getAadharnumber().length() != 12 || proposalRepo.existsByAadharnumber(proposerDTO.getAadharnumber()))
+			{
 				throw new IllegalArgumentException("Aadhaar number must be exactly 12 digits.");
 			}
 			proposer.setAadharnumber(proposerDTO.getAadharnumber());
@@ -127,7 +126,8 @@ public class ProposalServiceImpl implements ProposalService
 			}
 			proposer.setName(proposerDTO.getName());
 
-			if (proposerDTO.getPannumber() == null || proposerDTO.getPannumber().length() != 10) {
+			if (proposerDTO.getPannumber() == null || proposerDTO.getPannumber().length() != 10  || !proposerDTO.getPannumber().matches("^[A-Z]{5}[0-9]{4}[A-Z]{1}$"))
+			{
 				throw new IllegalArgumentException("PAN number must be exactly 10 characters.");
 			}
 			proposer.setPannumber(proposerDTO.getPannumber());
@@ -151,11 +151,7 @@ public class ProposalServiceImpl implements ProposalService
 			proposer.setStatus('Y');
 
 			return proposalRepo.save(proposer);
-		} catch (IllegalArgumentException e) {
 
-			System.out.println("Validation failed: " + e.getMessage());
-			throw e;
-		}
 	}
 
 

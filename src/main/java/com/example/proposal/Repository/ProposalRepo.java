@@ -11,4 +11,7 @@ import com.example.proposal.model.Proposer;
 public interface ProposalRepo extends JpaRepository<Proposer, Long> 
 {
    Page<Proposer> findByName(String name, Pageable pageable);
+
+
+   boolean existsByAadharnumber(String aadharnumber);
 }
