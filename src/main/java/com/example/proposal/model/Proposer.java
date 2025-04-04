@@ -22,13 +22,13 @@ public class Proposer {
 	private String gender;
 
 	@Column(name = "date_of_birth")
-	private String dateofbirth;
+	private String dateOfBirth;
 
 	@Column(name = "annual_income")
 	private String annualincome;
 
 	@Column(name = "pan_number")
-	private String pannumber;
+	private String panNumber;
 
 	@Column(name = "aadhar_number")
 	private String aadharnumber;
@@ -57,16 +57,16 @@ public class Proposer {
 	@Column(name = "status")
 	private Character status ;
 
-	public Proposer(Long id, String name, String gender, String dateofbirth, String annualincome, String pannumber,
-			String aadharnumber, String maritalstatus, String email, String phonenumber, String address, String pincode,
-			String city, String state, Character status) {
+	public Proposer(Long id, String name, String gender, String dateOfBirth, String annualincome, String panNumber,
+					String aadharnumber, String maritalstatus, String email, String phonenumber, String address, String pincode,
+					String city, String state, Character status) {
 		super();
 		Id = id;
 		this.name = name;
 		this.gender = gender;
-		this.dateofbirth = dateofbirth;
+		this.dateOfBirth = dateOfBirth;
 		this.annualincome = annualincome;
-		this.pannumber = pannumber;
+		this.panNumber = panNumber;
 		this.aadharnumber = aadharnumber;
 		this.maritalstatus = maritalstatus;
 		this.email = email;
@@ -107,12 +107,12 @@ public class Proposer {
 		this.gender = gender;
 	}
 
-	public String getDateofbirth() {
-		return dateofbirth;
+	public String getDateOfBirth() {
+		return dateOfBirth;
 	}
 
-	public void setDateofbirth(String dateofbirth) {
-		this.dateofbirth = dateofbirth;
+	public void setDateOfBirth(String dateOfBirth) {
+		this.dateOfBirth = dateOfBirth;
 	}
 
 	public String getAnnualincome() {
@@ -123,12 +123,12 @@ public class Proposer {
 		this.annualincome = annualincome;
 	}
 
-	public String getPannumber() {
-		return pannumber;
+	public String getPanNumber() {
+		return panNumber;
 	}
 
-	public void setPannumber(String pannumber) {
-		this.pannumber = pannumber;
+	public void setPanNumber(String panNumber) {
+		this.panNumber = panNumber;
 	}
 
 	public String getAadharnumber() {

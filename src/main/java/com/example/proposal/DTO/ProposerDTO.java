@@ -1,16 +1,18 @@
 package com.example.proposal.DTO;
 
+import com.example.proposal.model.Gender;
+
 public class ProposerDTO {
     
     private String name;
     private String gender;
-    private String dateofbirth;
+    private String dateOfBirth;
     private String annualincome;
-    private String pannumber;
+    private String panNumber;
     private String aadharnumber;
     private String maritalstatus;
     private String email;
-    private String phonenumber;
+    private String phoneNumber;
     private String address;
     private String pincode;
     private String city;
@@ -21,19 +23,19 @@ public class ProposerDTO {
     public ProposerDTO() {
     }
 
-    public ProposerDTO(String name, String gender, String dateofbirth, String annualincome, 
-                       String pannumber, String aadharnumber, String maritalstatus, 
-                       String email, String phonenumber, String address, String pincode,
+    public ProposerDTO(String name, String gender, String dateOfBirth, String annualincome,
+                       String panNumber, String aadharnumber, String maritalstatus,
+                       String email, String phoneNumber, String address, String pincode,
                        String city, String state, Character status) {
         this.name = name;
         this.gender = gender;
-        this.dateofbirth = dateofbirth;
+        this.dateOfBirth = dateOfBirth;
         this.annualincome = annualincome;
-        this.pannumber = pannumber;
+        this.panNumber = panNumber;
         this.aadharnumber = aadharnumber;
         this.maritalstatus = maritalstatus;
         this.email = email;
-        this.phonenumber = phonenumber;
+        this.phoneNumber = phoneNumber;
         this.address = address;
         this.pincode = pincode;
         this.city = city;
@@ -57,12 +59,12 @@ public class ProposerDTO {
         this.gender = gender;
     }
 
-    public String getDateofbirth() {
-        return dateofbirth;
+    public String getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public void setDateofbirth(String dateofbirth) {
-        this.dateofbirth = dateofbirth;
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public String getAnnualincome() {
@@ -73,12 +75,12 @@ public class ProposerDTO {
         this.annualincome = annualincome;
     }
 
-    public String getPannumber() {
-        return pannumber;
+    public String getPanNumber() {
+        return panNumber;
     }
 
-    public void setPannumber(String pannumber) {
-        this.pannumber = pannumber;
+    public void setPanNumber(String panNumber) {
+        this.panNumber = panNumber;
     }
 
     public String getAadharnumber() {
@@ -105,12 +107,12 @@ public class ProposerDTO {
         this.email = email;
     }
 
-    public String getPhonenumber() {
-        return phonenumber;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhonenumber(String phonenumber) {
-        this.phonenumber = phonenumber;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getAddress() {
