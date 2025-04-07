@@ -6,6 +6,9 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
 
 @Entity
 @Table(name = "proposer")
@@ -56,6 +59,61 @@ public class Proposer {
 
 	@Column(name = "status")
 	private Character status ;
+
+	@Column(name = "created-At")
+	@CreationTimestamp
+	private String createdAt;
+
+	@Column(name = "updated-At")
+	@UpdateTimestamp
+	private String updatedAt;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public Proposer(Long id, String name, String gender, String dateOfBirth, String annualincome, String panNumber,
 					String aadharnumber, String maritalstatus, String email, String phonenumber, String address, String pincode,
@@ -207,6 +265,7 @@ public class Proposer {
 	  { 
 		  this.status = status; 
 	  }
-	 
+
+
 
 }

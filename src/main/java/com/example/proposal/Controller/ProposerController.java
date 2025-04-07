@@ -3,9 +3,12 @@ package com.example.proposal.Controller;
 
 import com.example.proposal.DTO.ProposerDTO;
 import com.example.proposal.Repository.ProposalRepo;
+import com.example.proposal.RequestHandler.ProposerPage;
 import com.example.proposal.ResponseHandler.ResponseHandler;
 import com.example.proposal.Service.ProposalService;
+import com.example.proposal.Service.ProposalServiceImpl;
 import com.example.proposal.model.*;
+import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -44,9 +48,7 @@ public class ProposerController {
             responseHandler.setData(registerdto);
             responseHandler.setStatus(false);
             responseHandler.setMessage("Info");
-        }*/
-        catch (Exception e)
-        {
+        }*/ catch (Exception e) {
             //Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
             responseHandler.setData(new ArrayList<>());
             responseHandler.setStatus(false);
@@ -56,11 +58,9 @@ public class ProposerController {
     }
 
     @GetMapping("/get")
-    public ResponseHandler<List<Proposer>> getproposers(ProposerDTO proposerDTO)
-    {
+    public ResponseHandler<List<Proposer>> getproposers(ProposerDTO proposerDTO) {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
-        try
-        {
+        try {
             List<Proposer> getproposer = proposalRepo.findByStatus('Y');
             responseHandler.setMessage("Success");
             responseHandler.setData(getproposer);
@@ -75,7 +75,6 @@ public class ProposerController {
     }
 
 
-
     @DeleteMapping("/delete/{id}")
     public ResponseHandler<?> deletebyid(@PathVariable Long id) throws Exception {
         ResponseHandler responseHandler = new ResponseHandler<>();
@@ -85,9 +84,7 @@ public class ProposerController {
             responseHandler.setStatus(true);
             responseHandler.setMessage("Deleted");
             responseHandler.setData(getproposer);
-        }
-        catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             responseHandler.setStatus(false);
             responseHandler.setMessage("Info");
         }
@@ -98,11 +95,46 @@ public class ProposerController {
     }
 
 
-
     @PutMapping("/update/{id}")
-    public Proposer newProposer(@PathVariable Long id, @RequestBody ProposerDTO updatedProposerdto) {
-        return proposalService.updatedto(id, updatedProposerdto);
+    public ResponseHandler<List<ProposalService>> newProposer(@PathVariable Long id, @RequestBody ProposerDTO updatedProposerdto) {
+        ResponseHandler responseHandler = new ResponseHandler();
+        try {
+            responseHandler.setStatus(true);
+            responseHandler.setData(proposalService);
+            responseHandler.setMessage("Successfull");
+        } catch (IllegalArgumentException e) {
+            responseHandler.setMessage("Unsuccessfull");
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setStatus(false);
+        }
+        return responseHandler;
     }
+
+    @PostMapping("/getbypage")
+    public ResponseHandler<List<Proposer>> getAllByPaging(@RequestBody ProposerPage proposerPage) {
+        ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
+        try {
+            List<Proposer> proposers = proposalService.getDetails(proposerPage);
+            if (proposers == null || proposers.isEmpty()) {
+                responseHandler.setStatus(false);
+                responseHandler.setData(Collections.emptyList());
+                responseHandler.setMessage("No proposers found.");
+            } else {
+                responseHandler.setStatus(true);
+                responseHandler.setData(proposers);
+                responseHandler.setMessage("Proposers retrieved successfully.");
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            responseHandler.setStatus(false);
+            responseHandler.setData(Collections.emptyList());
+            responseHandler.setMessage(e.getMessage());
+
+        }
+        return responseHandler;
+    }
+
+
 
 
     // *********************************************** Enum *************************************************************
@@ -137,7 +169,8 @@ public class ProposerController {
 
 
     @GetMapping("/getpage/{name}")
-    public Page<Proposer> getbyname(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+    public Page<Proposer> getbyname(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size)
+    {
         return proposalRepo.findByName(name, PageRequest.of(page, size));
     }
 
@@ -166,4 +199,42 @@ public class ProposerController {
         return new ResponseEntity<>(proposer, HttpStatus.OK);
 
     }*/
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*@Autowired
+ProposalServiceImpl proposalServiceimpl;
+
+@GetMapping("/items")
+public List<AbstractReadWriteAccess.Item> listItems(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                    @RequestParam(value = "size", defaultValue = "5") int size) {
+    return proposalServiceimpl.getItems(page, size);
+}
+
+@GetMapping("/items/total")
+public long getTotalItems() {
+    return proposalServiceimpl.getTotalItems();
+}*/

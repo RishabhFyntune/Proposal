@@ -1,6 +1,8 @@
 package com.example.proposal.DTO;
 
 import com.example.proposal.model.Gender;
+import jakarta.persistence.Entity;
+
 
 public class ProposerDTO {
     
