@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.List;
 
 @RestController
-//@RequestMapping("/proposer")
+@RequestMapping("proposer/")
 public class ProposerController {
 
 
@@ -29,12 +29,13 @@ public class ProposerController {
     private ProposalRepo proposalRepo;
 
 
-    @PostMapping("/dtoregister")
-    public ResponseHandler dtoregister(@RequestBody ProposerDTO proposerDTO) {
+    @PostMapping("proposer_register")
+    public ResponseHandler dto_register(@RequestBody ProposerDTO proposerDTO) {
         ResponseHandler responseHandler = new ResponseHandler<>();
         try {
-            Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
-            responseHandler.setData(registerdto);
+            responseHandler.setTotalRecord(proposalRepo.count());
+            Proposer registerDto = proposalService.saveproposerdto(proposerDTO);
+            responseHandler.setData(registerDto);
             responseHandler.setStatus(true);
             responseHandler.setMessage("Proposer registered successfully");
         }
@@ -46,6 +47,7 @@ public class ProposerController {
             responseHandler.setMessage("Info");
         }*/ catch (Exception e) {
             //Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
+            responseHandler.setTotalRecord(proposalRepo.count());
             responseHandler.setData(new ArrayList<>());
             responseHandler.setStatus(false);
             responseHandler.setMessage(e.getMessage());
@@ -53,17 +55,18 @@ public class ProposerController {
         return responseHandler;
     }
 
-    @GetMapping("/get")
-    public ResponseHandler<List<Proposer>> getproposers(ProposerDTO proposerDTO) {
+    @GetMapping("get_proposer")
+    public ResponseHandler<List<Proposer>> get_proposers() {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
         try {
-            List<Proposer> getproposer = proposalRepo.findByStatus('Y');
+            List<Proposer> getProposer = proposalRepo.findByStatus('Y');
+            responseHandler.setTotalRecord(proposalRepo.count());
             responseHandler.setMessage("Success");
-            responseHandler.setData(getproposer);
+            responseHandler.setData(getProposer);
             responseHandler.setStatus(true);
         } catch (IllegalArgumentException e) {
-            Proposer registerdto = proposalService.saveproposerdto(proposerDTO);
-            responseHandler.setData(registerdto);
+//            Proposer registerDto = proposalService.saveproposerdto();
+            responseHandler.setData(new ArrayList<>());
             responseHandler.setStatus(false);
             responseHandler.setMessage("Info");
         }
@@ -71,15 +74,15 @@ public class ProposerController {
     }
 
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseHandler<?> deletebyid(@PathVariable Long id) throws Exception {
+    @DeleteMapping("delete_proposer/{id}")
+    public ResponseHandler<?> delete_by_id(@PathVariable Long id) throws Exception {
         ResponseHandler responseHandler = new ResponseHandler<>();
         try {
-            List<Proposer> getproposer = proposalService.getproposer();
+            List<Proposer> getProposer = proposalService.getproposer();
             proposalService.delete(id);
             responseHandler.setStatus(true);
             responseHandler.setMessage("Deleted");
-            responseHandler.setData(getproposer);
+            responseHandler.setData(getProposer);
         } catch (IllegalArgumentException e) {
             responseHandler.setStatus(false);
             responseHandler.setMessage("Info");
@@ -91,8 +94,8 @@ public class ProposerController {
     }
 
 
-    @PutMapping("/update/{id}")
-    public ResponseHandler<List<ProposalService>> newProposer(@PathVariable Long id, @RequestBody ProposerDTO updatedProposerdto) {
+    @PutMapping("update_proposer/{id}")
+    public ResponseHandler<List<ProposalService>> new_proposer(@PathVariable Long id, @RequestBody ProposerDTO updatedProposerdto) {
         ResponseHandler responseHandler = new ResponseHandler();
         try {
             responseHandler.setStatus(true);
@@ -106,18 +109,42 @@ public class ProposerController {
         return responseHandler;
     }
 
-    @PostMapping("/getbypage")
-    public ResponseHandler<List<Proposer>> getAllByPaging(@RequestBody ProposerPage proposerPage) {
+    @PostMapping("pagination_filtering")
+    public ResponseHandler<List<Proposer>> getAllByPaging(@RequestBody ProposerPage proposerPage)
+    {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
         try {
             List<Proposer> proposers = proposalService.getDetails(proposerPage);
             if (proposers == null || proposers.isEmpty()) {
+                responseHandler.setTotalRecord(proposalRepo.count());
+                responseHandler.setStatus(false);
+                responseHandler.setData(Collections.emptyList());
+                responseHandler.setMessage("No proposers found.");
+            } else
+            {
+                responseHandler.setTotalRecord(proposalRepo.count());
+                responseHandler.setStatus(true);
+                responseHandler.setData(proposers);
+                responseHandler.setMessage("Proposers retrieved successfully.");
+            }
+        } catch (IllegalArgumentException e)
+        {
+            e.printStackTrace();
+//            responseHandler.setTotalRecord(proposers.size());
+            responseHandler.setStatus(false);
+            responseHandler.setData(Collections.emptyList());
+            responseHandler.setMessage(e.getMessage());
+
+        }
+        /*try {
+            List<Proposer> proposeres = proposalService.getfiltering(proposerPage);
+            if (proposeres == null || proposeres.isEmpty()) {
                 responseHandler.setStatus(false);
                 responseHandler.setData(Collections.emptyList());
                 responseHandler.setMessage("No proposers found.");
             } else {
                 responseHandler.setStatus(true);
-                responseHandler.setData(proposers);
+                responseHandler.setData(proposeres);
                 responseHandler.setMessage("Proposers retrieved successfully.");
             }
         } catch (IllegalArgumentException e) {
@@ -126,11 +153,11 @@ public class ProposerController {
             responseHandler.setData(Collections.emptyList());
             responseHandler.setMessage(e.getMessage());
 
-        }
+        }*/
         return responseHandler;
     }
 
-    @PostMapping("/getbyfilter")
+   /* @PostMapping("/getbyfilter")
     public ResponseHandler<List<Proposer>> getAllByFiltering(@RequestBody ProposerPage proposerPage) {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
         try {
@@ -152,7 +179,7 @@ public class ProposerController {
 
         }
         return responseHandler;
-    }
+    }*/
 
 
 
@@ -160,27 +187,27 @@ public class ProposerController {
 
     // *********************************************** Enum *************************************************************
 
-    @GetMapping("/getgender")
+    @GetMapping("get_gender")
     public List<Gender> getallgender() {
         return Arrays.asList(Gender.values());
     }
 
-    @GetMapping("/getmaritalstatus")
+    @GetMapping("get_marital_status")
     public List<MaritalStatus> getmarital() {
         return Arrays.asList(MaritalStatus.values());
     }
 
-    @GetMapping("/getnationality")
+    @GetMapping("get_nationality")
     public List<Nationality> getnationality() {
         return Arrays.asList(Nationality.values());
     }
 
-    @GetMapping("/getoccupation")
+    @GetMapping("get_occupation")
     public List<Occupation> getoccupation() {
         return Arrays.asList(Occupation.values());
     }
 
-    @GetMapping("/gettitle")
+    @GetMapping("get_title")
     public List<Title> gettitle() {
         return Arrays.asList(Title.values());
     }
@@ -189,11 +216,11 @@ public class ProposerController {
     // *********************************** Pagination ***********************************************************************
 
 
-    @GetMapping("/getpage/{name}")
+/*    @GetMapping("get_page/{name}")
     public Page<Proposer> getbyname(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size)
     {
         return proposalRepo.findByName(name, PageRequest.of(page, size));
-    }
+    }*/
 
     /*
      * @PutMapping("/update/{id}") public

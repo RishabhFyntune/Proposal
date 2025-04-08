@@ -25,5 +25,5 @@ public interface ProposalService
 	List<Proposer> getDetails(ProposerPage proposerPage);
 
 
-	List<Proposer> getfiltering(ProposerPage proposerPage);
+	//List<Proposer> getfiltering(ProposerPage proposerPage);
 }

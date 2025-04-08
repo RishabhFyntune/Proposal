@@ -1,7 +1,9 @@
 package com.example.proposal.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import jakarta.persistence.criteria.*;
 
 import com.example.proposal.Pagenation.ProposerPage;
 import com.example.proposal.Pagenation.SearchFilter;
@@ -188,59 +190,87 @@ public class ProposalServiceImpl implements ProposalService {
     @Override
     public List<Proposer> getDetails(ProposerPage proposerPage)
     {
+
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
         Root<Proposer> root = criteriaQuery.from(Proposer.class);
+        criteriaQuery.select(root);
 
-        if(proposerPage.getPage() >= 0 && proposerPage.getSize() >= 0)
+        List<Predicate> predicate = new ArrayList<>();
+
+        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+        String city = "";
+        String name = "";
+        for (SearchFilter result : searchFilters)
         {
-            if(proposerPage.getSortBy() == null  || proposerPage.getSortOrder().isEmpty())
-            {
-                proposerPage.setSortBy("id");
-                proposerPage.setSortOrder("DESC");
-            }
-        }else{
-            throw new IllegalArgumentException("Galat hai");
+            name = result.getName();
+            city = result.getCity();
+
         }
 
-        if(proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null)
+        String sortBy1 = proposerPage.getSortBy();
+        String sortOrder = proposerPage.getSortOrder();
+
+        String sort = sortBy1!=null ? sortBy1 : "creatAt";
+        String sortOr = sortOrder!=null ? sortOrder : "desc";
+
+
+
+
+
+
+       if(!city.isEmpty())
+       {
+           predicate.add(criteriaBuilder.equal(root.get("city"),city));
+       }
+        if(!name.isEmpty())
         {
-            String sortBy = proposerPage.getSortBy();
-            if("ASC".equalsIgnoreCase(proposerPage.getSortOrder()))
+            predicate.add(criteriaBuilder.equal(root.get("name"),name));
+        }
+        criteriaQuery.where(predicate.toArray(new Predicate[0]));
+
+       if(!sortBy1.isEmpty() &&  !sortOrder.isEmpty())
+        {
+
+            if("ASC".equalsIgnoreCase(sortBy1))
             {
-                criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+                criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy1)));
             }
             else
             {
-                criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+                criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy1)));
             }
         }
 
-        if(proposerPage.getPage() <= 0 && proposerPage.getSize() <= 0)
-        {
-            return entityManager.createQuery(criteriaQuery).getResultList();
-        }
-        else
-        {
             Integer size = proposerPage.getSize();
             Integer page = proposerPage.getPage();
 
             TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
-            typedQuery.setFirstResult((page -1) * size);
-            typedQuery.setMaxResults(size);
 
+
+            List<Proposer> resultList = typedQuery.getResultList();
+            int sized = resultList.size();
+        System.err.println(sized);
+            if(page > 0 && size >0) {
+
+                typedQuery.setFirstResult((page - 1) * size);
+                typedQuery.setMaxResults(size);
+            }
             return typedQuery.getResultList();
-        }
     }
 
-    @Override
+    /*@Override
     public List<Proposer> getfiltering(ProposerPage proposerPage)
     {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
         Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
-        SearchFilter[] searchFilters = proposerPage.getSearchFilters();
+        List<Predicate> predicates = new ArrayList<>();
+
+        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+        for (SearchFilter result : searchFilters) {
+        }
 
         if (searchFilters != null) {
             for (SearchFilter filter : searchFilters) {
@@ -261,6 +291,8 @@ public class ProposalServiceImpl implements ProposalService {
             }
         }
 
+//        criteriaQuery.where(predicates.toArray(new Predicate[0]));
+
         if(proposerPage.getPage() >= 0 && proposerPage.getSize() >= 0)
         {
             if(proposerPage.getSortBy() == null  || proposerPage.getSortOrder().isEmpty())
@@ -300,7 +332,7 @@ public class ProposalServiceImpl implements ProposalService {
 
             return typedQuery.getResultList();
         }
-    }
+    }*/
 
 
     @Override

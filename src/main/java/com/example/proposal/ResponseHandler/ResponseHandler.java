@@ -4,6 +4,15 @@ public class ResponseHandler<Y> {
     private boolean status;
     private Object data;
     private String message;
+    private long totalRecord;
+
+    public long getTotalRecord() {
+        return totalRecord;
+    }
+
+    public void setTotalRecord(long totalRecord) {
+        this.totalRecord = totalRecord;
+    }
 
 
 

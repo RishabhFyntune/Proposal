@@ -5,7 +5,7 @@ public class SearchFilter
     private String name;
     private String email;
     private String city;
-    private Character status;
+    private String status;
 
     public String getName() {
         return name;
@@ -31,11 +31,11 @@ public class SearchFilter
         this.city = city;
     }
 
-    public Character getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(Character status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 }

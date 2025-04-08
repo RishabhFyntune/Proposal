@@ -1,5 +1,7 @@
 package com.example.proposal.Pagenation;
 
+import java.util.List;
+
 public class ProposerPage
 {
 
@@ -7,14 +9,23 @@ public class ProposerPage
     private Integer size;
     private String sortBy;
     private String sortOrder;
-    private SearchFilter[] searchFilters;
+    private List<SearchFilter> searchFilters;
 
-    public SearchFilter[] getSearchFilters() {
+//    public SearchFilter[] getSearchFilters() {
+//
+//        return searchFilters;
+//    }
+//
+//    public void setSearchFilters(SearchFilter[] searchFilters) {
+//        this.searchFilters = searchFilters;
+//    }
 
+
+    public List<SearchFilter> getSearchFilters() {
         return searchFilters;
     }
 
-    public void setSearchFilters(SearchFilter[] searchFilters) {
+    public void setSearchFilters(List<SearchFilter> searchFilters) {
         this.searchFilters = searchFilters;
     }
 

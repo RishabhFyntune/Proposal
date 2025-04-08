@@ -24,6 +24,17 @@ public class Proposer {
 	@Column(name = "gender")
 	private String gender;
 
+	@Column(name = "gender_id")
+	private String genderId;
+
+	public String getGenderId() {
+		return genderId;
+	}
+
+	public void setGenderId(String genderId) {
+		this.genderId = genderId;
+	}
+
 	@Column(name = "date_of_birth")
 	private String dateOfBirth;
 
