@@ -2,8 +2,7 @@ package com.example.proposal.Service;
 
 import java.util.List;
 
-import com.example.proposal.RequestHandler.ProposerPage;
-import org.springframework.data.domain.Pageable;
+import com.example.proposal.Pagenation.ProposerPage;
 import org.springframework.stereotype.Service;
 
 import com.example.proposal.DTO.ProposerDTO;
@@ -26,6 +25,5 @@ public interface ProposalService
 	List<Proposer> getDetails(ProposerPage proposerPage);
 
 
-	//Proposer getProposerById(Long id);
-	//public Proposer saveProposer(Proposer proposer);
+	List<Proposer> getfiltering(ProposerPage proposerPage);
 }

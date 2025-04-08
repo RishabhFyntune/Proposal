@@ -3,17 +3,13 @@ package com.example.proposal.Controller;
 
 import com.example.proposal.DTO.ProposerDTO;
 import com.example.proposal.Repository.ProposalRepo;
-import com.example.proposal.RequestHandler.ProposerPage;
+import com.example.proposal.Pagenation.ProposerPage;
 import com.example.proposal.ResponseHandler.ResponseHandler;
 import com.example.proposal.Service.ProposalService;
-import com.example.proposal.Service.ProposalServiceImpl;
 import com.example.proposal.model.*;
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -133,6 +129,31 @@ public class ProposerController {
         }
         return responseHandler;
     }
+
+    @PostMapping("/getbyfilter")
+    public ResponseHandler<List<Proposer>> getAllByFiltering(@RequestBody ProposerPage proposerPage) {
+        ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
+        try {
+            List<Proposer> proposers = proposalService.getfiltering(proposerPage);
+            if (proposers == null || proposers.isEmpty()) {
+                responseHandler.setStatus(false);
+                responseHandler.setData(Collections.emptyList());
+                responseHandler.setMessage("No proposers found.");
+            } else {
+                responseHandler.setStatus(true);
+                responseHandler.setData(proposers);
+                responseHandler.setMessage("Proposers retrieved successfully.");
+            }
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            responseHandler.setStatus(false);
+            responseHandler.setData(Collections.emptyList());
+            responseHandler.setMessage(e.getMessage());
+
+        }
+        return responseHandler;
+    }
+
 
 
 

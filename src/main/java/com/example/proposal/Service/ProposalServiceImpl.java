@@ -3,7 +3,8 @@ package com.example.proposal.Service;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.proposal.RequestHandler.ProposerPage;
+import com.example.proposal.Pagenation.ProposerPage;
+import com.example.proposal.Pagenation.SearchFilter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -15,9 +16,6 @@ import org.springframework.stereotype.Service;
 import com.example.proposal.DTO.ProposerDTO;
 import com.example.proposal.Repository.ProposalRepo;
 import com.example.proposal.model.Proposer;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.ID;
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @Service
 public class ProposalServiceImpl implements ProposalService {
@@ -235,8 +233,74 @@ public class ProposalServiceImpl implements ProposalService {
         }
     }
 
+    @Override
+    public List<Proposer> getfiltering(ProposerPage proposerPage)
+    {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
+        Root<Proposer> root = criteriaQuery.from(Proposer.class);
 
+        SearchFilter[] searchFilters = proposerPage.getSearchFilters();
 
+        if (searchFilters != null) {
+            for (SearchFilter filter : searchFilters) {
+                if (filter.getName() != null && !filter.getName().isEmpty())
+                {
+                   // criteriaQuery.where(criteriaBuilder.like(root.get("name"), "%" + filter.getName() + "%"));
+                    criteriaQuery.where(criteriaBuilder.like(root.get("name"), "%" + filter.getName() + "%"));
+                }
+                if (filter.getEmail() != null && !filter.getEmail().isEmpty()) {
+                    criteriaQuery.where(criteriaBuilder.like(root.get("email"), "%" + filter.getEmail() + "%"));
+                }
+                if (filter.getCity() != null && !filter.getCity().isEmpty()) {
+                    criteriaQuery.where(criteriaBuilder.like(root.get("city"), "%" + filter.getCity() + "%"));
+                }
+                if (filter.getStatus() != null) {
+                    criteriaQuery.where(criteriaBuilder.equal(root.get("status"), filter.getStatus()));
+                }
+            }
+        }
+
+        if(proposerPage.getPage() >= 0 && proposerPage.getSize() >= 0)
+        {
+            if(proposerPage.getSortBy() == null  || proposerPage.getSortOrder().isEmpty())
+            {
+                proposerPage.setSortBy("id");
+                proposerPage.setSortOrder("DESC");
+            }
+        }else{
+            throw new IllegalArgumentException("Galat hai");
+        }
+
+        if(proposerPage.getSortBy() != null && proposerPage.getSortOrder() != null)
+        {
+            String sortBy = proposerPage.getSortBy();
+            if("ASC".equalsIgnoreCase(proposerPage.getSortOrder()))
+            {
+                criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy)));
+            }
+            else
+            {
+                criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy)));
+            }
+        }
+
+        if(proposerPage.getPage() <= 0 && proposerPage.getSize() <= 0)
+        {
+            return entityManager.createQuery(criteriaQuery).getResultList();
+        }
+        else
+        {
+            Integer size = proposerPage.getSize();
+            Integer page = proposerPage.getPage();
+
+            TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+            typedQuery.setFirstResult((page -1) * size);
+            typedQuery.setMaxResults(size);
+
+            return typedQuery.getResultList();
+        }
+    }
 
 
     @Override

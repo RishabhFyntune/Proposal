@@ -1,4 +1,4 @@
-package com.example.proposal.RequestHandler;
+package com.example.proposal.Pagenation;
 
 public class ProposerPage
 {
@@ -7,13 +7,15 @@ public class ProposerPage
     private Integer size;
     private String sortBy;
     private String sortOrder;
+    private SearchFilter[] searchFilters;
 
-    public ProposerPage(Integer page, Integer size, String sortBy, String sortOrder)
-    {
-        this.page = page;
-        this.size = size;
-        this.sortBy = sortBy;
-        this.sortOrder = sortOrder;
+    public SearchFilter[] getSearchFilters() {
+
+        return searchFilters;
+    }
+
+    public void setSearchFilters(SearchFilter[] searchFilters) {
+        this.searchFilters = searchFilters;
     }
 
     public ProposerPage()
