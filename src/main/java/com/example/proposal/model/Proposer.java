@@ -8,7 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.CreatedBy;
 
 @Entity
 @Table(name = "proposer")
@@ -24,15 +23,24 @@ public class Proposer {
 	@Column(name = "gender")
 	private String gender;
 
-	@Column(name = "gender_id")
-	private String genderId;
 
-	public String getGenderId() {
-		return genderId;
+	@Column(name = "gender_id")
+	private int genderId;
+
+	public String getUpdatedAt() {
+		return updatedAt;
 	}
 
-	public void setGenderId(String genderId) {
-		this.genderId = genderId;
+	public void setUpdatedAt(String updatedAt) {
+		this.updatedAt = updatedAt;
+	}
+
+	public String getCreatedAt() {
+		return createdAt;
+	}
+
+	public void setCreatedAt(String createdAt) {
+		this.createdAt = createdAt;
 	}
 
 	@Column(name = "date_of_birth")
@@ -54,7 +62,7 @@ public class Proposer {
 	private String email;
 
 	@Column(name = "phone_number")
-	private String phonenumber;
+	private String phoneNumber;
 
 	@Column(name = "address")
 	private String address;
@@ -80,54 +88,16 @@ public class Proposer {
 	private String updatedAt;
 
 
+	public int getGenderId() {
+		return genderId;
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	public void setGenderId(int genderId) {
+		this.genderId = genderId;
+	}
 
 	public Proposer(Long id, String name, String gender, String dateOfBirth, String annualincome, String panNumber,
-					String aadharnumber, String maritalstatus, String email, String phonenumber, String address, String pincode,
+					String aadharnumber, String maritalstatus, String email, String phoneNumber, String address, String pincode,
 					String city, String state, Character status) {
 		super();
 		Id = id;
@@ -139,7 +109,7 @@ public class Proposer {
 		this.aadharnumber = aadharnumber;
 		this.maritalstatus = maritalstatus;
 		this.email = email;
-		this.phonenumber = phonenumber;
+		this.phoneNumber = phoneNumber;
 		this.address = address;
 		this.pincode = pincode;
 		this.city = city;
@@ -224,12 +194,12 @@ public class Proposer {
 		this.email = email;
 	}
 
-	public String getPhonenumber() {
-		return phonenumber;
+	public String getphoneNumber() {
+		return phoneNumber;
 	}
 
-	public void setPhonenumber(String phonenumber) {
-		this.phonenumber = phonenumber;
+	public void setphoneNumber(String phonenumber) {
+		this.phoneNumber = phoneNumber;
 	}
 
 	public String getAddress() {

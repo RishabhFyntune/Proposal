@@ -1,15 +1,14 @@
-package com.example.proposal.Controller;
+package com.example.proposal.controller;
 
 
-import com.example.proposal.DTO.ProposerDTO;
-import com.example.proposal.Repository.ProposalRepo;
-import com.example.proposal.Pagenation.ProposerPage;
-import com.example.proposal.ResponseHandler.ResponseHandler;
-import com.example.proposal.Service.ProposalService;
+import com.example.proposal.dto.ProposerDTO;
+import com.example.proposal.repository.ProposalRepo;
+import com.example.proposal.pagenation.ProposerPage;
+import com.example.proposal.responsehandler.ResponseHandler;
+import com.example.proposal.service.ProposalService;
+import com.example.proposal.service.ProposalServiceImpl;
 import com.example.proposal.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class ProposerController {
 
 
     @Autowired
-    private ProposalService proposalService;
+    private ProposalServiceImpl proposalService;
 
     @Autowired
     private ProposalRepo proposalRepo;
@@ -34,7 +33,7 @@ public class ProposerController {
         ResponseHandler responseHandler = new ResponseHandler<>();
         try {
             responseHandler.setTotalRecord(proposalRepo.count());
-            Proposer registerDto = proposalService.saveproposerdto(proposerDTO);
+            Proposer registerDto = proposalService.saveProposerDto(proposerDTO);
             responseHandler.setData(registerDto);
             responseHandler.setStatus(true);
             responseHandler.setMessage("Proposer registered successfully");
@@ -60,7 +59,7 @@ public class ProposerController {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
         try {
             List<Proposer> getProposer = proposalRepo.findByStatus('Y');
-            responseHandler.setTotalRecord(proposalRepo.count());
+            responseHandler.setTotalRecord(getProposer.size());
             responseHandler.setMessage("Success");
             responseHandler.setData(getProposer);
             responseHandler.setStatus(true);
@@ -78,7 +77,7 @@ public class ProposerController {
     public ResponseHandler<?> delete_by_id(@PathVariable Long id) throws Exception {
         ResponseHandler responseHandler = new ResponseHandler<>();
         try {
-            List<Proposer> getProposer = proposalService.getproposer();
+            List<Proposer> getProposer = proposalService.getProposer();
             proposalService.delete(id);
             responseHandler.setStatus(true);
             responseHandler.setMessage("Deleted");
@@ -116,13 +115,13 @@ public class ProposerController {
         try {
             List<Proposer> proposers = proposalService.getDetails(proposerPage);
             if (proposers == null || proposers.isEmpty()) {
-                responseHandler.setTotalRecord(proposalRepo.count());
+                responseHandler.setTotalRecord(proposalService.getTotalRecord());
                 responseHandler.setStatus(false);
                 responseHandler.setData(Collections.emptyList());
                 responseHandler.setMessage("No proposers found.");
             } else
             {
-                responseHandler.setTotalRecord(proposalRepo.count());
+                responseHandler.setTotalRecord(proposalService.getTotalRecord());
                 responseHandler.setStatus(true);
                 responseHandler.setData(proposers);
                 responseHandler.setMessage("Proposers retrieved successfully.");

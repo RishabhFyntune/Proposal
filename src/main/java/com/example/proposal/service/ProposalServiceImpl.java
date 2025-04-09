@@ -1,12 +1,16 @@
-package com.example.proposal.Service;
+package com.example.proposal.service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.example.proposal.repository.newProposerRepo;
+//import com.example.proposal.model.Gender;
+import com.example.proposal.model.GenderType;
 import jakarta.persistence.criteria.*;
 
-import com.example.proposal.Pagenation.ProposerPage;
-import com.example.proposal.Pagenation.SearchFilter;
+import com.example.proposal.pagenation.ProposerPage;
+import com.example.proposal.pagenation.SearchFilter;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -15,8 +19,8 @@ import jakarta.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.proposal.DTO.ProposerDTO;
-import com.example.proposal.Repository.ProposalRepo;
+import com.example.proposal.dto.ProposerDTO;
+import com.example.proposal.repository.ProposalRepo;
 import com.example.proposal.model.Proposer;
 
 @Service
@@ -25,34 +29,38 @@ public class ProposalServiceImpl implements ProposalService {
     @Autowired
     private ProposalRepo proposalRepo;
 
+    @Autowired
+    private newProposerRepo newProposerRepo;
+
+    int totalRecord = 0;
 
     @Override
 
-    public Proposer register(Proposer proposer) {
+    public Proposer register(Proposer proposer)
+    {
         proposer.setStatus('Y');
-
-        return proposalRepo.save(proposer);
+        Proposer save = proposalRepo.save(proposer);
+        return save;
     }
 
 
     @Override
     public Proposer delete(Long id) throws Exception {
         Optional<Proposer> deleteProposer = proposalRepo.findById(id);
-        Proposer updatedeletedstatus = deleteProposer.get();
-        if (updatedeletedstatus.getStatus() == 'N') {
+        Proposer updateDeletedStatus = deleteProposer.get();
+        if (updateDeletedStatus.getStatus() == 'N') {
             throw new Exception("Proposer is deleted");
 
         }
 
-        updatedeletedstatus.setStatus('N');
-        return proposalRepo.save(updatedeletedstatus);
+        updateDeletedStatus.setStatus('N');
+        return proposalRepo.save(updateDeletedStatus);
 
 
     }
 
     @Override
-    public List<Proposer> getproposer()
-    {
+    public List<Proposer> getProposer() {
         return proposalRepo.findAll();
     }
 
@@ -73,20 +81,35 @@ public class ProposalServiceImpl implements ProposalService {
         oldproposer.setMaritalstatus(proposer.getMaritalstatus());
         oldproposer.setName(proposer.getName());
         oldproposer.setPanNumber(proposer.getPanNumber());
-        oldproposer.setPhonenumber(proposer.getPhonenumber());
+        oldproposer.setphoneNumber(proposer.getphoneNumber());
         oldproposer.setPincode(proposer.getPincode());
         oldproposer.setState(proposer.getState());
 
 
         Proposer updatedProposer = proposalRepo.save(oldproposer);
-        return
-                updatedProposer;
+        return updatedProposer;
 
     }
 
     @Override
-    public Proposer saveproposerdto(ProposerDTO proposerDTO) {
+    public Proposer saveProposerDto(ProposerDTO proposerDTO) {
         Proposer proposer = new Proposer();
+
+        String genderType = proposerDTO.getGender();
+        if(genderType != null && !genderType.isEmpty())
+        {
+            Optional<GenderType> genderTable = newProposerRepo.findByGenderType(genderType);
+            if(genderTable.isPresent())
+            {
+                proposer.setGenderId(genderTable.get().getGenderID());
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid gender type");
+            }
+        } else {
+            throw new IllegalArgumentException("Gender not be null or empty");
+        }
 
         if (proposerDTO.getAadharnumber() == null || proposerDTO.getAadharnumber().length() != 12) {
             throw new IllegalArgumentException("Aadhaar number must be exactly 12 digits.");
@@ -162,11 +185,11 @@ public class ProposalServiceImpl implements ProposalService {
         proposer.setPanNumber(proposerDTO.getPanNumber());
 
         if (proposerDTO.getPhoneNumber() == null) {
-            if (proposerDTO.getPhoneNumber().length() != 10 || proposalRepo.existsByPhonenumber(proposerDTO.getPhoneNumber())) {
+            if (proposerDTO.getPhoneNumber().length() != 10 || proposalRepo.existsByPhoneNumber(proposerDTO.getPhoneNumber())) {
                 throw new IllegalArgumentException("Phone number must be exactly 10 digits.");
             }
         }
-        proposer.setPhonenumber(proposerDTO.getPhoneNumber());
+        proposer.setphoneNumber(proposerDTO.getPhoneNumber());
 
         if (proposerDTO.getPincode() == null || proposerDTO.getPincode().length() != 6) {
             throw new IllegalArgumentException("Pincode must of 6 digit");
@@ -188,9 +211,20 @@ public class ProposalServiceImpl implements ProposalService {
     EntityManager entityManager;
 
     @Override
-    public List<Proposer> getDetails(ProposerPage proposerPage)
-    {
+    public List<Proposer> getDetails(ProposerPage proposerPage) {
 
+        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
+
+        String city = "";
+        String name = "";
+        String status="";
+
+        for (SearchFilter result : searchFilters) {
+            name = result.getName();
+            city = result.getCity();
+            status = result.getStatus();
+
+        }
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Proposer> criteriaQuery = criteriaBuilder.createQuery(Proposer.class);
         Root<Proposer> root = criteriaQuery.from(Proposer.class);
@@ -198,65 +232,60 @@ public class ProposalServiceImpl implements ProposalService {
 
         List<Predicate> predicate = new ArrayList<>();
 
-        List<SearchFilter> searchFilters = proposerPage.getSearchFilters();
-        String city = "";
-        String name = "";
-        for (SearchFilter result : searchFilters)
-        {
-            name = result.getName();
-            city = result.getCity();
 
+        if(status!=null && "N".equalsIgnoreCase(status)) {
+            predicate.add(criteriaBuilder.equal(root.get("status"), 'N'));
+        }else{
+            predicate.add(criteriaBuilder.equal(root.get("status"), 'Y'));
         }
+
 
         String sortBy1 = proposerPage.getSortBy();
         String sortOrder = proposerPage.getSortOrder();
 
-        String sort = sortBy1!=null ? sortBy1 : "creatAt";
-        String sortOr = sortOrder!=null ? sortOrder : "desc";
+        String sort = sortBy1 != null ? sortBy1 : "creatAt";
+        String sortOr = sortOrder != null ? sortOrder : "desc";
 
 
-
-
-
-
-       if(!city.isEmpty())
-       {
-           predicate.add(criteriaBuilder.equal(root.get("city"),city));
-       }
-        if(!name.isEmpty())
-        {
-            predicate.add(criteriaBuilder.equal(root.get("name"),name));
+        if (!city.isEmpty()) {
+            predicate.add(criteriaBuilder.equal(root.get("city"), city));
+        }
+        if (!name.isEmpty()) {
+            predicate.add(criteriaBuilder.equal(root.get("name"), name));
         }
         criteriaQuery.where(predicate.toArray(new Predicate[0]));
 
-       if(!sortBy1.isEmpty() &&  !sortOrder.isEmpty())
-        {
+        if (!sortBy1.isEmpty() && !sortOrder.isEmpty()) {
 
-            if("ASC".equalsIgnoreCase(sortBy1))
-            {
+            if ("ASC".equalsIgnoreCase(sortBy1)) {
                 criteriaQuery.orderBy(criteriaBuilder.asc(root.get(sortBy1)));
-            }
-            else
-            {
+            } else {
                 criteriaQuery.orderBy(criteriaBuilder.desc(root.get(sortBy1)));
             }
         }
 
-            Integer size = proposerPage.getSize();
-            Integer page = proposerPage.getPage();
+        Integer size = proposerPage.getSize();
+        Integer page = proposerPage.getPage();
 
-            TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
+        TypedQuery<Proposer> typedQuery = entityManager.createQuery(criteriaQuery);
 
 
-            List<Proposer> resultList = typedQuery.getResultList();
-            int sized = resultList.size();
+        List<Proposer> resultList = typedQuery.getResultList();
+        int sized = resultList.size();
+        totalRecord = sized;
+
         System.err.println(sized);
-            if(page > 0 && size >0) {
+        if (page > 0 && size > 0) {
 
-                typedQuery.setFirstResult((page - 1) * size);
-                typedQuery.setMaxResults(size);
-            }
-            return typedQuery.getResultList();
+            typedQuery.setFirstResult((page - 1) * size);
+            typedQuery.setMaxResults(size);
+        }
+        return typedQuery.getResultList();
+    }
+
+    @Override
+    public Integer getTotalRecord() {
+        return totalRecord;
     }
 
     /*@Override
@@ -349,7 +378,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public Proposer updatedto(Long id, ProposerDTO proposerDTO) {
+    public Proposer updateDto(Long id, ProposerDTO proposerDTO) {
 
         Proposer proposer = new Proposer();
 
@@ -373,16 +402,13 @@ public class ProposalServiceImpl implements ProposalService {
         }
         proposer.setCity(proposerDTO.getCity());
 
-        if (proposerDTO.getDateOfBirth() == null)
-        {
+        if (proposerDTO.getDateOfBirth() == null) {
             throw new IllegalArgumentException("Date of birth cannot be null.");
         }
         proposer.setDateOfBirth(proposerDTO.getDateOfBirth());
 
-        if (proposerDTO.getEmail() == null)
-        {
-            if (!proposerDTO.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$"))
-            {
+        if (proposerDTO.getEmail() == null) {
+            if (!proposerDTO.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
                 throw new IllegalArgumentException("Invalid email format.");
             }
 
@@ -426,7 +452,7 @@ public class ProposalServiceImpl implements ProposalService {
                 throw new IllegalArgumentException("Phone number must be exactly 10 digits.");
             }
         }
-        proposer.setPhonenumber(proposerDTO.getPhoneNumber());
+        proposer.setphoneNumber(proposerDTO.getPhoneNumber());
 
         if (proposerDTO.getPincode() == null || proposerDTO.getPincode().length() != 6) {
             throw new IllegalArgumentException("Pincode must of 6 digit");
@@ -459,4 +485,4 @@ public class ProposalServiceImpl implements ProposalService {
 public long getTotalItems()
 {
     return proposalRepo.countTotalRecords();
-}*/
+ }*/

@@ -1,4 +1,4 @@
-package com.example.proposal.Pagenation;
+package com.example.proposal.pagenation;
 
 public class SearchFilter
 {

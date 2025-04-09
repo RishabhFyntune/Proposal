@@ -1,29 +1,28 @@
-package com.example.proposal.Service;
+package com.example.proposal.service;
 
 import java.util.List;
 
-import com.example.proposal.Pagenation.ProposerPage;
-import org.springframework.stereotype.Service;
+import com.example.proposal.pagenation.ProposerPage;
 
-import com.example.proposal.DTO.ProposerDTO;
+import com.example.proposal.dto.ProposerDTO;
 import com.example.proposal.model.Proposer;
 
-@Service
-public interface ProposalService 
+
+public interface ProposalService
 {
 	public Proposer register(Proposer proposer);
 	public Proposer delete(Long id) throws Exception;
-	public List<Proposer> getproposer();
+	public List<Proposer> getProposer();
 	public Proposer update( Long id, Proposer proposer);
 
 	Proposer getProposerById(Long id);
 
 	Proposer saveProposer(Proposer proposer);
 
-	public Proposer updatedto(Long id, ProposerDTO proposerDTO);
-	public Proposer saveproposerdto(ProposerDTO proposerDTO);
+	public Proposer updateDto(Long id, ProposerDTO proposerDTO);
+	public Proposer saveProposerDto(ProposerDTO proposerDTO);
 	List<Proposer> getDetails(ProposerPage proposerPage);
 
-
+	public Integer getTotalRecord();
 	//List<Proposer> getfiltering(ProposerPage proposerPage);
 }
