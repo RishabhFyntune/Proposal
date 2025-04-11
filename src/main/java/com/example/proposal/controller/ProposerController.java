@@ -8,13 +8,15 @@ import com.example.proposal.responsehandler.ResponseHandler;
 import com.example.proposal.service.ProposalService;
 import com.example.proposal.service.ProposalServiceImpl;
 import com.example.proposal.model.*;
+import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @RequestMapping("proposer/")
@@ -182,7 +184,72 @@ public class ProposerController {
 
 
 
+    @GetMapping("excel")
+    public void generateExcelReport(HttpServletResponse response) throws Exception{
 
+        response.setContentType("application/octet-stream");
+
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment;filename=Proposer_Details.xls";
+
+        response.setHeader(headerKey, headerValue);
+
+        proposalService.generateExcel(response);
+
+        response.flushBuffer();
+    }
+
+    @GetMapping("/generate-sample")
+    public ResponseHandler generateExcelSample(HttpServletResponse response) {
+        ResponseHandler responseHandler = new ResponseHandler();
+
+        try {
+
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+            String currentDateTime = dateFormat.format(new Date());
+            String uuid = UUID.randomUUID().toString();
+
+
+            String fileName = "Proposer_Details_" + uuid + "_" + currentDateTime + ".xlsx";
+            String filePath = "D:\\" + fileName;
+
+
+            proposalService.sampleExcel(filePath);
+
+            responseHandler.setStatus(true);
+            responseHandler.setMessage("Excel file generated successfully");
+            responseHandler.setData(filePath);
+        } catch (Exception e) {
+            responseHandler.setStatus(false);
+            responseHandler.setMessage("Failed to generate Excel: " + e.getMessage());
+            responseHandler.setData(Collections.emptyList());
+        }
+
+        return responseHandler;
+    }
+
+
+    @PostMapping(value = "/importPersonalData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler importPersonalDetails(
+            @Parameter(description = "Excel file to upload", required = true)
+            @RequestParam("file") MultipartFile file) {
+
+        ResponseHandler response = new ResponseHandler();
+
+        try {
+            List<Proposer> savedExcelList = proposalService.importPersonalDetailsFromExcel(file);
+            response.setStatus(true);
+            response.setMessage("Excel imported successfully. Rows saved: " + savedExcelList.size());
+            response.setData(savedExcelList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(false);
+            response.setMessage("Failed to import Excel file.");
+            response.setData(new ArrayList<>());
+        }
+
+        return response;
+    }
 
     // *********************************************** Enum *************************************************************
 
@@ -192,7 +259,8 @@ public class ProposerController {
     }
 
     @GetMapping("get_marital_status")
-    public List<MaritalStatus> getmarital() {
+    public List<MaritalStatus> getmarital()
+    {
         return Arrays.asList(MaritalStatus.values());
     }
 

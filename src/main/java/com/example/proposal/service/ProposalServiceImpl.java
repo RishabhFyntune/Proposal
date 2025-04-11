@@ -1,8 +1,12 @@
 package com.example.proposal.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
@@ -16,12 +20,25 @@ import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.sl.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.proposal.dto.ProposerDTO;
 import com.example.proposal.repository.ProposalRepo;
 import com.example.proposal.model.Proposer;
+import org.springframework.web.multipart.MultipartFile;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 
 @Service
 public class ProposalServiceImpl implements ProposalService {
@@ -233,9 +250,12 @@ public class ProposalServiceImpl implements ProposalService {
         List<Predicate> predicate = new ArrayList<>();
 
 
-        if(status!=null && "N".equalsIgnoreCase(status)) {
+        if(status!=null && "N".equalsIgnoreCase(status))
+        {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'N'));
-        }else{
+        }
+        else
+        {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'Y'));
         }
 
@@ -287,6 +307,143 @@ public class ProposalServiceImpl implements ProposalService {
     public Integer getTotalRecord() {
         return totalRecord;
     }
+
+    @Override
+    public void generateExcel(HttpServletResponse httpServletResponse) throws Exception
+    {
+        List<Proposer> proposers = proposalRepo.findAll();
+
+
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+        XSSFSheet sheet = xssfWorkbook.createSheet("Proposer_Details");
+
+        XSSFRow row = sheet.createRow(0);
+        row.createCell(0).setCellValue("id");
+        row.createCell(1).setCellValue("name");
+        row.createCell(2).setCellValue("gender");
+        row.createCell(3).setCellValue("status");
+
+        int dataRowIndex = 1;
+
+        for(Proposer proposer : proposers)
+        {
+            XSSFRow dataRow = sheet.createRow(dataRowIndex++);
+            dataRow.createCell(0).setCellValue(proposer.getId());
+            dataRow.createCell(1).setCellValue(proposer.getName());
+            dataRow.createCell(2).setCellValue(proposer.getGender());
+            dataRow.createCell(3).setCellValue(String.valueOf(proposer.getStatus()));
+//            dataRowIndex++;
+        }
+
+        ServletOutputStream outputStream = httpServletResponse.getOutputStream();
+        xssfWorkbook.write(outputStream);
+        xssfWorkbook.close();
+        outputStream.close();
+    }
+
+    @Override
+    public String sampleExcel(String filePath) throws Exception {
+        List<Proposer> proposers = proposalRepo.findAll();
+
+        XSSFWorkbook xssfWorkbook = new XSSFWorkbook();
+        XSSFSheet sheet = xssfWorkbook.createSheet();
+
+        XSSFRow row = sheet.createRow(0);
+        row.createCell(0).setCellValue("id");
+        row.createCell(1).setCellValue("name");
+        row.createCell(2).setCellValue("gender");
+        row.createCell(3).setCellValue("status");
+
+        int rowCount = 1;
+//        for (Proposer proposer : proposers) {
+//            XSSFRow dataRow = sheet.createRow(rowCount++);
+//            dataRow.createCell(0).setCellValue(proposer.getId());
+//            dataRow.createCell(1).setCellValue(proposer.getName());
+//            dataRow.createCell(2).setCellValue(proposer.getGender());
+//            dataRow.createCell(3).setCellValue(proposer.getStatus());
+//        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
+            xssfWorkbook.write(fileOut);
+        }
+
+        xssfWorkbook.close();
+        return filePath;
+    }
+
+
+
+    public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
+        List<Proposer> savedExcelList = new ArrayList<>();
+
+        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+            XSSFSheet sheet = workbook.getSheetAt(0);
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                XSSFRow row = sheet.getRow(i);
+                if (row == null) continue;
+
+                ProposerDTO dto = new ProposerDTO();
+
+
+
+                Cell dobCell = row.getCell(2);
+                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
+                    LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // or your preferred format
+                    dto.setDateOfBirth(dob.format(formatter));
+                }
+
+                Proposer proposer = new Proposer();
+
+                dto.setAadharnumber(getCellString(row.getCell(0)));
+                dto.setName(getCellString(row.getCell(1)));
+                dto.setGender(getCellString(row.getCell(2)));
+                dto.setState(getCellString(row.getCell(3)));
+                dto.setDateOfBirth(getCellString(row.getCell(4)));
+                dto.setAnnualincome(getCellString(row.getCell(5)));
+                dto.setPanNumber(getCellString(row.getCell(6)));
+                dto.setMaritalstatus(getCellString(row.getCell(7)));
+              //  dto.set(getCellString(row.getCell(6)));
+              //  dto.setProfession(getCellString(row.getCell(7)));
+                dto.setEmail(getCellString(row.getCell(8)));
+                dto.setPhoneNumber(getCellString(row.getCell(9)));
+               // dto.setAlternateMobileNumber(getCellString(row.getCell(10)));
+                dto.setAddress(getCellString(row.getCell(10)));
+                //dto.setAddressLine2(getCellString(row.getCell(12)));
+               // dto.setAddressLine3(getCellString(row.getCell(13)));
+                dto.setPincode(getCellString(row.getCell(11)));
+                dto.setCity(getCellString(row.getCell(12)));
+//                dto.setState(getCellString(row.getCell(16)));
+
+                Proposer saved = saveProposerDto(dto);
+                savedExcelList.add(saved);
+
+            }
+
+        }
+
+        return savedExcelList;
+    }
+
+    private String getCellString(Cell cell) {
+        if (cell == null) return "";
+
+        if (cell.getCellType() == CellType.STRING) {
+            return cell.getStringCellValue();
+        } else if (cell.getCellType() == CellType.NUMERIC && !DateUtil.isCellDateFormatted(cell)) {
+            return String.valueOf((long) cell.getNumericCellValue());
+        } else if (cell.getCellType() == CellType.BOOLEAN) {
+            return String.valueOf(cell.getBooleanCellValue());
+        } else {
+            return "";
+        }
+    }
+
+
+
+
+
 
     /*@Override
     public List<Proposer> getfiltering(ProposerPage proposerPage)
