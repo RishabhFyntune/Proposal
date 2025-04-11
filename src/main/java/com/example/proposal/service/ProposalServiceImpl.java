@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.example.proposal.model.Gender;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
 import com.example.proposal.model.GenderType;
@@ -53,8 +54,7 @@ public class ProposalServiceImpl implements ProposalService {
 
     @Override
 
-    public Proposer register(Proposer proposer)
-    {
+    public Proposer register(Proposer proposer) {
         proposer.setStatus('Y');
         Proposer save = proposalRepo.save(proposer);
         return save;
@@ -113,15 +113,11 @@ public class ProposalServiceImpl implements ProposalService {
         Proposer proposer = new Proposer();
 
         String genderType = proposerDTO.getGender();
-        if(genderType != null && !genderType.isEmpty())
-        {
+        if (genderType != null && !genderType.isEmpty()) {
             Optional<GenderType> genderTable = newProposerRepo.findByGenderType(genderType);
-            if(genderTable.isPresent())
-            {
+            if (genderTable.isPresent()) {
                 proposer.setGenderId(genderTable.get().getGenderID());
-            }
-            else
-            {
+            } else {
                 throw new IllegalArgumentException("Invalid gender type");
             }
         } else {
@@ -234,7 +230,7 @@ public class ProposalServiceImpl implements ProposalService {
 
         String city = "";
         String name = "";
-        String status="";
+        String status = "";
 
         for (SearchFilter result : searchFilters) {
             name = result.getName();
@@ -250,12 +246,9 @@ public class ProposalServiceImpl implements ProposalService {
         List<Predicate> predicate = new ArrayList<>();
 
 
-        if(status!=null && "N".equalsIgnoreCase(status))
-        {
+        if (status != null && "N".equalsIgnoreCase(status)) {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'N'));
-        }
-        else
-        {
+        } else {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'Y'));
         }
 
@@ -309,8 +302,7 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
     @Override
-    public void generateExcel(HttpServletResponse httpServletResponse) throws Exception
-    {
+    public void generateExcel(HttpServletResponse httpServletResponse) throws Exception {
         List<Proposer> proposers = proposalRepo.findAll();
 
 
@@ -325,8 +317,7 @@ public class ProposalServiceImpl implements ProposalService {
 
         int dataRowIndex = 1;
 
-        for(Proposer proposer : proposers)
-        {
+        for (Proposer proposer : proposers) {
             XSSFRow dataRow = sheet.createRow(dataRowIndex++);
             dataRow.createCell(0).setCellValue(proposer.getId());
             dataRow.createCell(1).setCellValue(proposer.getName());
@@ -372,7 +363,6 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-
     public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
         List<Proposer> savedExcelList = new ArrayList<>();
 
@@ -383,41 +373,43 @@ public class ProposalServiceImpl implements ProposalService {
                 XSSFRow row = sheet.getRow(i);
                 if (row == null) continue;
 
-                ProposerDTO dto = new ProposerDTO();
+                Proposer dto = new Proposer();
 
 
-
-                Cell dobCell = row.getCell(2);
+                Cell dobCell = row.getCell(4); // Use correct DOB index!
                 if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
                     LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd"); // or your preferred format
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                     dto.setDateOfBirth(dob.format(formatter));
-                }
+//                    dto.setDateOfBirth(dobCell.getLocalDateTimeCellValue().toLocalDate());
 
-                Proposer proposer = new Proposer();
+                } else {
+                    dto.setDateOfBirth(getCellString(row.getCell(4)));
+                }
+//                Proposer proposer = new Proposer();
 
                 dto.setAadharnumber(getCellString(row.getCell(0)));
                 dto.setName(getCellString(row.getCell(1)));
                 dto.setGender(getCellString(row.getCell(2)));
                 dto.setState(getCellString(row.getCell(3)));
-                dto.setDateOfBirth(getCellString(row.getCell(4)));
+//                dto.setDateOfBirth(getCellString(row.getCell(4)));
                 dto.setAnnualincome(getCellString(row.getCell(5)));
                 dto.setPanNumber(getCellString(row.getCell(6)));
                 dto.setMaritalstatus(getCellString(row.getCell(7)));
-              //  dto.set(getCellString(row.getCell(6)));
-              //  dto.setProfession(getCellString(row.getCell(7)));
+                //  dto.set(getCellString(row.getCell(6)));
+                //  dto.setProfession(getCellString(row.getCell(7)));
                 dto.setEmail(getCellString(row.getCell(8)));
-                dto.setPhoneNumber(getCellString(row.getCell(9)));
-               // dto.setAlternateMobileNumber(getCellString(row.getCell(10)));
+                dto.setphoneNumber(getCellString(row.getCell(9)));
+                // dto.setAlternateMobileNumber(getCellString(row.getCell(10)));
                 dto.setAddress(getCellString(row.getCell(10)));
                 //dto.setAddressLine2(getCellString(row.getCell(12)));
-               // dto.setAddressLine3(getCellString(row.getCell(13)));
+                // dto.setAddressLine3(getCellString(row.getCell(13)));
                 dto.setPincode(getCellString(row.getCell(11)));
                 dto.setCity(getCellString(row.getCell(12)));
 //                dto.setState(getCellString(row.getCell(16)));
 
-                Proposer saved = saveProposerDto(dto);
-                savedExcelList.add(saved);
+                proposalRepo.save(dto);
+//                savedExcelList.add(saved);
 
             }
 
