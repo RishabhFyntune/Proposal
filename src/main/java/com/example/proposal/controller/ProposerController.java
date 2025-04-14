@@ -199,7 +199,7 @@ public class ProposerController {
         response.flushBuffer();
     }
 
-    @GetMapping("/generate-sample")
+    @GetMapping("/generate_sample")
     public ResponseHandler generateExcelSample(HttpServletResponse response) {
         ResponseHandler responseHandler = new ResponseHandler();
 
@@ -229,7 +229,7 @@ public class ProposerController {
     }
 
 
-    @PostMapping(value = "/importPersonalData", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/import_Personal_Data", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler importPersonalDetails(
             @Parameter(description = "Excel file to upload", required = true)
             @RequestParam("file") MultipartFile file) {

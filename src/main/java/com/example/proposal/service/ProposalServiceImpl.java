@@ -1,14 +1,11 @@
 package com.example.proposal.service;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import com.example.proposal.model.Gender;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
 import com.example.proposal.model.GenderType;
@@ -23,10 +20,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -98,7 +92,7 @@ public class ProposalServiceImpl implements ProposalService {
         oldproposer.setMaritalstatus(proposer.getMaritalstatus());
         oldproposer.setName(proposer.getName());
         oldproposer.setPanNumber(proposer.getPanNumber());
-        oldproposer.setphoneNumber(proposer.getphoneNumber());
+        oldproposer.setPhoneNumber(proposer.getPhoneNumber());
         oldproposer.setPincode(proposer.getPincode());
         oldproposer.setState(proposer.getState());
 
@@ -202,7 +196,7 @@ public class ProposalServiceImpl implements ProposalService {
                 throw new IllegalArgumentException("Phone number must be exactly 10 digits.");
             }
         }
-        proposer.setphoneNumber(proposerDTO.getPhoneNumber());
+        proposer.setPhoneNumber(proposerDTO.getPhoneNumber());
 
         if (proposerDTO.getPincode() == null || proposerDTO.getPincode().length() != 6) {
             throw new IllegalArgumentException("Pincode must of 6 digit");
@@ -346,13 +340,6 @@ public class ProposalServiceImpl implements ProposalService {
         row.createCell(3).setCellValue("status");
 
         int rowCount = 1;
-//        for (Proposer proposer : proposers) {
-//            XSSFRow dataRow = sheet.createRow(rowCount++);
-//            dataRow.createCell(0).setCellValue(proposer.getId());
-//            dataRow.createCell(1).setCellValue(proposer.getName());
-//            dataRow.createCell(2).setCellValue(proposer.getGender());
-//            dataRow.createCell(3).setCellValue(proposer.getStatus());
-//        }
 
         try (FileOutputStream fileOut = new FileOutputStream(filePath)) {
             xssfWorkbook.write(fileOut);
@@ -363,53 +350,87 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-    public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
+    public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException
+    {
         List<Proposer> savedExcelList = new ArrayList<>();
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream()))
+        {
             XSSFSheet sheet = workbook.getSheetAt(0);
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            for (int i = 1; i <= sheet.getLastRowNum(); i++)
+            {
                 XSSFRow row = sheet.getRow(i);
                 if (row == null) continue;
 
-                Proposer dto = new Proposer();
+                Proposer proposer = new Proposer();
+
 
 
                 Cell dobCell = row.getCell(4); // Use correct DOB index!
-                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
+                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell))
+                {
                     LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                    dto.setDateOfBirth(dob.format(formatter));
+                    proposer.setDateOfBirth(dob.format(formatter));
 //                    dto.setDateOfBirth(dobCell.getLocalDateTimeCellValue().toLocalDate());
 
-                } else {
-                    dto.setDateOfBirth(getCellString(row.getCell(4)));
                 }
-//                Proposer proposer = new Proposer();
+                else
+                {
+                    proposer.setDateOfBirth(getCellString(row.getCell(4)));
+                }
 
-                dto.setAadharnumber(getCellString(row.getCell(0)));
-                dto.setName(getCellString(row.getCell(1)));
-                dto.setGender(getCellString(row.getCell(2)));
-                dto.setState(getCellString(row.getCell(3)));
-//                dto.setDateOfBirth(getCellString(row.getCell(4)));
-                dto.setAnnualincome(getCellString(row.getCell(5)));
-                dto.setPanNumber(getCellString(row.getCell(6)));
-                dto.setMaritalstatus(getCellString(row.getCell(7)));
-                //  dto.set(getCellString(row.getCell(6)));
-                //  dto.setProfession(getCellString(row.getCell(7)));
-                dto.setEmail(getCellString(row.getCell(8)));
-                dto.setphoneNumber(getCellString(row.getCell(9)));
+
+                String aadhar = isValid(row, 0);
+                String name = isValid(row, 1);
+                String gender = isValid(row, 2);
+                String state = isValid(row, 3);
+                String income = isValid(row, 5);
+                String pan = isValid(row, 6);
+                String marital = isValid(row, 7);
+                String email = isValid(row, 8);
+                String phone = isValid(row, 9);
+                String address = isValid(row, 10);
+                String pincode = isValid(row, 11);
+                String city = isValid(row, 12);
+
+                if (name == null || name.isEmpty() || gender == null || gender.isEmpty() || state == null || state.isEmpty() || income == null || income.isEmpty() ||
+                        pan == null || proposalRepo.existsByPanNumber(proposer.getPanNumber())|| pan.length() != 10 || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]") || marital == null || marital.isEmpty() ||
+                        email == null || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$") ||
+                        phone == null || phone.length() != 10 || !phone.matches("\\d{10}") || address == null || address.isEmpty() ||
+                        pincode == null || pincode.length() != 6 || !pincode.matches("\\d{6}") || city == null || city.isEmpty())
+                {
+                    System.out.println("Skipping row :- " + i);
+                    continue;
+                }
+
+
+
+                proposer.setAadharnumber(getCellString(row.getCell(0)));
+                proposer.setName(getCellString(row.getCell(1)));
+                proposer.setGender(getCellString(row.getCell(2)));
+                proposer.setState(getCellString(row.getCell(3)));
+                proposer.setAnnualincome(getCellString(row.getCell(5)));
+                proposer.setPanNumber(getCellString(row.getCell(6)));
+                proposer.setMaritalstatus(getCellString(row.getCell(7)));
+                proposer.setEmail(getCellString(row.getCell(8)));
+
+                proposer.setPhoneNumber(getCellString(row.getCell(9)));
                 // dto.setAlternateMobileNumber(getCellString(row.getCell(10)));
-                dto.setAddress(getCellString(row.getCell(10)));
-                //dto.setAddressLine2(getCellString(row.getCell(12)));
-                // dto.setAddressLine3(getCellString(row.getCell(13)));
-                dto.setPincode(getCellString(row.getCell(11)));
-                dto.setCity(getCellString(row.getCell(12)));
-//                dto.setState(getCellString(row.getCell(16)));
+                proposer.setAddress(getCellString(row.getCell(10)));
+                proposer.setPincode(getCellString(row.getCell(11)));
+                proposer.setCity(getCellString(row.getCell(12)));
+                proposer.setStatus('Y');
 
-                proposalRepo.save(dto);
-//                savedExcelList.add(saved);
+                String genderType = proposer.getGender().toString();
+                Optional<GenderType> genderTable = newProposerRepo.findByGenderType(genderType);
+                proposer.setGenderId(genderTable.get().getGenderID());
+
+
+                Proposer saved =  proposalRepo.save(proposer);
+               savedExcelList.add(saved);
+
 
             }
 
@@ -417,6 +438,16 @@ public class ProposalServiceImpl implements ProposalService {
 
         return savedExcelList;
     }
+
+    private String isValid(Row row, int index)
+    {
+        Cell cell = row.getCell(index);
+        if(cell == null) return "";
+        return getCellString(cell).trim();
+
+    }
+
+
 
     private String getCellString(Cell cell) {
         if (cell == null) return "";
@@ -431,6 +462,9 @@ public class ProposalServiceImpl implements ProposalService {
             return "";
         }
     }
+
+
+
 
 
 
@@ -601,7 +635,7 @@ public class ProposalServiceImpl implements ProposalService {
                 throw new IllegalArgumentException("Phone number must be exactly 10 digits.");
             }
         }
-        proposer.setphoneNumber(proposerDTO.getPhoneNumber());
+        proposer.setPhoneNumber(proposerDTO.getPhoneNumber());
 
         if (proposerDTO.getPincode() == null || proposerDTO.getPincode().length() != 6) {
             throw new IllegalArgumentException("Pincode must of 6 digit");
@@ -615,6 +649,7 @@ public class ProposalServiceImpl implements ProposalService {
 
         return proposalRepo.save(proposer);
     }
+
 
 }
 

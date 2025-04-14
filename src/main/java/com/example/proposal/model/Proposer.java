@@ -117,36 +117,44 @@ public class Proposer {
 		this.status = status;
 	}
 
-	public Proposer() {
+	public Proposer()
+	{
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Long getId() {
+	public Long getId()
+	{
 		return Id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Long id)
+	{
 		Id = id;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 
-	public String getGender() {
+	public String getGender()
+	{
 		return gender;
 	}
 
-	public void setGender(String gender) {
+	public void setGender(String gender)
+	{
 		this.gender = gender;
 	}
 
-	public String getDateOfBirth() {
+	public String getDateOfBirth()
+	{
 		return dateOfBirth;
 	}
 
@@ -194,11 +202,11 @@ public class Proposer {
 		this.email = email;
 	}
 
-	public String getphoneNumber() {
+	public String getPhoneNumber() {
 		return phoneNumber;
 	}
 
-	public void setphoneNumber(String phonenumber) {
+	public void setPhoneNumber(String phoneNumber) {
 		this.phoneNumber = phoneNumber;
 	}
 
