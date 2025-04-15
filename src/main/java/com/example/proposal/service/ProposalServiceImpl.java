@@ -9,6 +9,8 @@ import java.util.*;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
 import com.example.proposal.model.GenderType;
+import com.example.proposal.repository.responseExcelRepo;
+import com.example.proposal.responsehandler.ResponseExcel;
 import jakarta.persistence.criteria.*;
 
 import com.example.proposal.pagenation.ProposerPage;
@@ -43,6 +45,9 @@ public class ProposalServiceImpl implements ProposalService {
 
     @Autowired
     private newProposerRepo newProposerRepo;
+
+    @Autowired
+    private responseExcelRepo responseExcelRepo;
 
     int totalRecord = 0;
 
@@ -350,77 +355,173 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-    public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException
-    {
+    ResponseExcel responseExcel = new ResponseExcel();
+    ResponseExcel responseExcell = new ResponseExcel();
+
+    public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
         List<Proposer> savedExcelList = new ArrayList<>();
 
-        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream()))
-        {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
 
-            for (int i = 1; i <= sheet.getLastRowNum(); i++)
-            {
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
                 if (row == null) continue;
 
                 Proposer proposer = new Proposer();
 
 
-
                 Cell dobCell = row.getCell(4); // Use correct DOB index!
-                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell))
-                {
+                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
                     LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
                     proposer.setDateOfBirth(dob.format(formatter));
 //                    dto.setDateOfBirth(dobCell.getLocalDateTimeCellValue().toLocalDate());
 
-                }
-                else
-                {
+                } else {
                     proposer.setDateOfBirth(getCellString(row.getCell(4)));
                 }
 
 
                 String aadhar = isValid(row, 0);
-                String name = isValid(row, 1);
-                String gender = isValid(row, 2);
-                String state = isValid(row, 3);
-                String income = isValid(row, 5);
-                String pan = isValid(row, 6);
-                String marital = isValid(row, 7);
-                String email = isValid(row, 8);
-                String phone = isValid(row, 9);
-                String address = isValid(row, 10);
-                String pincode = isValid(row, 11);
-                String city = isValid(row, 12);
+                if (aadhar == null || aadhar.isEmpty()) {
 
-                if (name == null || name.isEmpty() || gender == null || gender.isEmpty() || state == null || state.isEmpty() || income == null || income.isEmpty() ||
-                        pan == null || proposalRepo.existsByPanNumber(proposer.getPanNumber())|| pan.length() != 10 || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]") || marital == null || marital.isEmpty() ||
-                        email == null || !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$") ||
-                        phone == null || phone.length() != 10 || !phone.matches("\\d{10}") || address == null || address.isEmpty() ||
-                        pincode == null || pincode.length() != 6 || !pincode.matches("\\d{6}") || city == null || city.isEmpty())
-                {
-                    System.out.println("Skipping row :- " + i);
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("aadhar");
+                    responseExcelRepo.save(responseExcel);
+                } else {
+                    proposer.setName(getCellString(row.getCell(0)));
+                }
+
+                String name = isValid(row, 1);
+
+                if (name == null || name.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("name");
+                    responseExcelRepo.save(responseExcel);
                     continue;
+                } else {
+                    proposer.setName(getCellString(row.getCell(1)));
                 }
 
 
+                String gender = isValid(row, 2);
 
-                proposer.setAadharnumber(getCellString(row.getCell(0)));
-                proposer.setName(getCellString(row.getCell(1)));
-                proposer.setGender(getCellString(row.getCell(2)));
-                proposer.setState(getCellString(row.getCell(3)));
-                proposer.setAnnualincome(getCellString(row.getCell(5)));
-                proposer.setPanNumber(getCellString(row.getCell(6)));
-                proposer.setMaritalstatus(getCellString(row.getCell(7)));
-                proposer.setEmail(getCellString(row.getCell(8)));
+                if (gender.isEmpty()) {
 
-                proposer.setPhoneNumber(getCellString(row.getCell(9)));
-                // dto.setAlternateMobileNumber(getCellString(row.getCell(10)));
-                proposer.setAddress(getCellString(row.getCell(10)));
-                proposer.setPincode(getCellString(row.getCell(11)));
-                proposer.setCity(getCellString(row.getCell(12)));
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("gender");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setGender(getCellString(row.getCell(2)));
+                }
+
+
+                String state = isValid(row, 3);
+
+                if (state.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("state");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setState(getCellString(row.getCell(3)));
+                }
+
+                String income = isValid(row, 5);
+
+                String pan = isValid(row, 6);
+
+                if (pan.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("pan");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setPanNumber(getCellString(row.getCell(6)));
+                }
+
+                String marital = isValid(row, 7);
+                String email = isValid(row, 8);
+
+                if (email.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("email");
+                    // System.err.println("-----------------ofunr--------------------");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setEmail(getCellString(row.getCell(8)));
+                }
+
+                String phone = isValid(row, 9);
+
+                if (phone.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("phone");
+                    // System.err.println("-----------------ofunr--------------------");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setPhoneNumber(getCellString(row.getCell(9)));
+                }
+
+                String address = isValid(row, 10);
+
+                if (address.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("address");
+                    // System.err.println("-----------------ofunr--------------------");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setAddress(getCellString(row.getCell(10)));
+                }
+
+                String pincode = isValid(row, 11);
+
+                if (pincode.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("pincode");
+                    // System.err.println("-----------------ofunr--------------------");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+                } else {
+                    proposer.setPincode(getCellString(row.getCell(11)));
+                }
+
+                String city = isValid(row, 12);
+
+                if (city.isEmpty()) {
+
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("city");
+                    responseExcelRepo.save(responseExcel);
+                    continue;
+
+                } else {
+                    proposer.setCity(getCellString(row.getCell(12)));
+                }
+
+
                 proposer.setStatus('Y');
 
                 String genderType = proposer.getGender().toString();
@@ -428,8 +529,14 @@ public class ProposalServiceImpl implements ProposalService {
                 proposer.setGenderId(genderTable.get().getGenderID());
 
 
-                Proposer saved =  proposalRepo.save(proposer);
-               savedExcelList.add(saved);
+                Proposer saved = proposalRepo.save(proposer);
+                Long id = saved.getId();
+                proposer.setName(getCellString(row.getCell(1)));
+                responseExcell.setError("No error");
+                responseExcell.setField(String.valueOf(id));
+                responseExcell.setStatus(true);
+                responseExcelRepo.save(responseExcell);
+                savedExcelList.add(saved);
 
 
             }
