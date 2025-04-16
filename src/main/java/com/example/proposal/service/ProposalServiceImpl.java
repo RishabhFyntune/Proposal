@@ -251,7 +251,7 @@ public class ProposalServiceImpl implements ProposalService {
         } else {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'Y'));
         }
-
+ 
 
         String sortBy1 = proposerPage.getSortBy();
         String sortOrder = proposerPage.getSortOrder();
@@ -376,6 +376,8 @@ public class ProposalServiceImpl implements ProposalService {
                 if (row == null) continue;
 
                 Proposer proposer = new Proposer();
+                ResponseExcel responseExcel = new ResponseExcel();
+                ResponseExcel responseExcell = new ResponseExcel();
 
 
                 String aadhar = isValid(row, 0);
@@ -412,14 +414,15 @@ public class ProposalServiceImpl implements ProposalService {
 
                 if (gender.isEmpty())
                 {
-                    System.err.println("Error in gender");
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("gender");
                     responseExcelRepo.save(responseExcel);
                     continue;
 
-                } else {
+                }
+                else
+                {
                     proposer.setGender(getCellString(row.getCell(2)));
                 }
 
@@ -436,16 +439,23 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setAnnualincome(getCellString(row.getCell(5)));
                 }
+                else
+                {
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("income");
+                    responseExcelRepo.save(responseExcel);
+                }
 
                 String pan = isValid(row, 6);
 
-                if (pan == null || pan.trim().isEmpty()) {
-
+                if (pan == null || !pan.matches( "[A-Z]{5}[0-9]{4}[A-Z]{1}") )
+                {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("pan");
                     responseExcelRepo.save(responseExcel);
-                    continue;
+//                    continue;
                 } else {
                     proposer.setPanNumber(getCellString(row.getCell(6)));
                 }
@@ -455,17 +465,31 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setMaritalstatus(getCellString(row.getCell(7)));
                 }
+                else
+                {
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("marital");
+                    responseExcelRepo.save(responseExcel);
+                }
 
                 String email = isValid(row, 8);
 
-                if (!email.isEmpty())
+                if (!email.isEmpty() && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
                 {
                     proposer.setEmail(getCellString(row.getCell(8)));
+                }
+                else
+                {
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("email");
+                    responseExcelRepo.save(responseExcel);
                 }
 
                 String phone = isValid(row, 9);
 
-                if (!phone.isEmpty())
+                if (!phone.isEmpty() && phone.matches("//d{10}"))
                 {
                     proposer.setPhoneNumber(getCellString(row.getCell(9)));
                 }
@@ -476,10 +500,17 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setAddress(getCellString(row.getCell(10)));
                 }
+                else
+                {
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("address");
+                    responseExcelRepo.save(responseExcel);
+                }
 
                 String pincode = isValid(row, 11);
 
-                if (pincode.isEmpty())
+                if (pincode.isEmpty() || pincode.length() != 6)
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
@@ -496,8 +527,14 @@ public class ProposalServiceImpl implements ProposalService {
 
                 if (!city.isEmpty())
                 {
-                    proposer.setCity("null");
                     proposer.setCity(getCellString(row.getCell(12)));
+                }
+                else
+                {
+                    responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("city");
+                    responseExcelRepo.save(responseExcel);
                 }
 
                 proposer.setStatus('Y');
@@ -524,8 +561,8 @@ public class ProposalServiceImpl implements ProposalService {
         return savedExcelList;
     }
 
-    ResponseExcel responseExcel = new ResponseExcel();
-    ResponseExcel responseExcell = new ResponseExcel();
+
+
 
     public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
         List<Proposer> savedExcelList = new ArrayList<>();
@@ -536,7 +573,8 @@ public class ProposalServiceImpl implements ProposalService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
                 if (row == null) continue;
-
+                ResponseExcel responseExcel = new ResponseExcel();
+                ResponseExcel responseExcell = new ResponseExcel();
                 Proposer proposer = new Proposer();
 
 
