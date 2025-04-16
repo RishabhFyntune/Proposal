@@ -237,7 +237,7 @@ public class ProposerController {
         ResponseHandler response = new ResponseHandler();
 
         try {
-            List<Proposer> savedExcelList = proposalService.importPersonalDetailsFromExcel(file);
+            List<Proposer> savedExcelList = proposalService.importFromExcel(file);
             response.setStatus(true);
             response.setMessage("Excel imported successfully. Rows saved: " + savedExcelList.size());
             response.setData(savedExcelList);

@@ -96,7 +96,7 @@ public class Proposer {
 		this.genderId = genderId;
 	}
 
-	public Proposer(Long id, String name, String gender, String dateOfBirth, String annualincome, String panNumber,
+	/*public Proposer(Long id, String name, String gender, String dateOfBirth, String annualincome, String panNumber,
 					String aadharnumber, String maritalstatus, String email, String phoneNumber, String address, String pincode,
 					String city, String state, Character status) {
 		super();
@@ -115,7 +115,7 @@ public class Proposer {
 		this.city = city;
 		this.state = state;
 		this.status = status;
-	}
+	}*/
 
 	public Proposer()
 	{
