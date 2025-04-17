@@ -228,6 +228,7 @@ public class ProposerController {
         return responseHandler;
     }
 
+    ProposalServiceImpl proposalServices = new ProposalServiceImpl();
 
     @PostMapping(value = "/import_Personal_Data", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler importPersonalDetails(
@@ -236,13 +237,18 @@ public class ProposerController {
 
         ResponseHandler response = new ResponseHandler();
 
-        try {
+        try
+        {
             List<Proposer> savedExcelList = proposalService.importFromExcel(file);
             response.setStatus(true);
-            response.setMessage("Excel imported successfully. Rows saved: " + savedExcelList.size());
+            //response.setMessage("Excel imported successfully. Rows saved: " + savedExcelList.size());
             response.setData(savedExcelList);
-        } catch (Exception e) {
-            e.printStackTrace();
+            response.setMessage("Successfull Data :- " + proposalService.successRecord() + "  Unsuccessfull Data :-  " + (proposalService.totalRecords() - proposalService.successRecord()));
+            response.setTotalRecord(proposalService.totalRecords());
+            //response.setSuccessRecord(proposalService.successRecord());
+           // response.setUnSuccessRecord(proposalService.totalRecords() - proposalService.successRecord());
+        } catch (Exception e)
+        {
             response.setStatus(false);
             response.setMessage("Failed to import Excel file.");
             response.setData(new ArrayList<>());

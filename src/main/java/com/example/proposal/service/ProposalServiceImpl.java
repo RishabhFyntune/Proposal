@@ -27,7 +27,6 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.parser.Part;
 import org.springframework.stereotype.Service;
 
 import com.example.proposal.dto.ProposerDTO;
@@ -364,12 +363,31 @@ public class ProposalServiceImpl implements ProposalService {
         xssfWorkbook.close();
         return filePath;
     }
+
+    Integer Successcount;
+    Integer totalCount = 0;
+
+
+    @Override
+    public Integer successRecord() {
+        return Successcount;
+    }
+
+    @Override
+    public Integer totalRecords() {
+        return totalCount;
+    }
+
     public List<Proposer> importFromExcel(MultipartFile file) throws IOException {
 
         List<Proposer> savedExcelList = new ArrayList<>();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
+            totalCount = sheet.getLastRowNum();
+            Successcount = 0;
+
+//            int count = 0;
 
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
@@ -381,16 +399,18 @@ public class ProposalServiceImpl implements ProposalService {
 
 
                 String aadhar = isValid(row, 0);
-                if (aadhar == null || aadhar.isEmpty() || aadhar.length() != 12)
+                if ( aadhar.isEmpty() )
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("aadhar");
                     responseExcelRepo.save(responseExcel);
-                    System.err.println("I am in aadhar");
+                    System.err.println("I am in aadhar" + aadhar);
+
                     continue;
                 } else {
                     proposer.setAadharnumber(getCellString(row.getCell(0)));
+
                 }
 
                 String name = isValid(row, 1);
@@ -439,13 +459,13 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setAnnualincome(getCellString(row.getCell(5)));
                 }
-                else
+               /* else
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("income");
                     responseExcelRepo.save(responseExcel);
-                }
+                }*/
 
                 String pan = isValid(row, 6);
 
@@ -455,7 +475,7 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("pan");
                     responseExcelRepo.save(responseExcel);
-//                    continue;
+                   continue;
                 } else {
                     proposer.setPanNumber(getCellString(row.getCell(6)));
                 }
@@ -465,13 +485,13 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setMaritalstatus(getCellString(row.getCell(7)));
                 }
-                else
+               /* else
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("marital");
                     responseExcelRepo.save(responseExcel);
-                }
+                }*/
 
                 String email = isValid(row, 8);
 
@@ -479,13 +499,13 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setEmail(getCellString(row.getCell(8)));
                 }
-                else
+               /* else
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("email");
                     responseExcelRepo.save(responseExcel);
-                }
+                }*/
 
                 String phone = isValid(row, 9);
 
@@ -500,13 +520,13 @@ public class ProposalServiceImpl implements ProposalService {
                 {
                     proposer.setAddress(getCellString(row.getCell(10)));
                 }
-                else
+              /*  else
                 {
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("address");
                     responseExcelRepo.save(responseExcel);
-                }
+                }*/
 
                 String pincode = isValid(row, 11);
 
@@ -527,15 +547,20 @@ public class ProposalServiceImpl implements ProposalService {
 
                 if (!city.isEmpty())
                 {
+                  /*  responseExcel.setStatus(false);
+                    responseExcel.setError("error");
+                    responseExcel.setField("city");
+                    responseExcelRepo.save(responseExcel);*/
                     proposer.setCity(getCellString(row.getCell(12)));
                 }
-                else
+             /*   else
                 {
+                    proposer.setCity(getCellString(row.getCell(12)));
                     responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("city");
                     responseExcelRepo.save(responseExcel);
-                }
+                }*/
 
                 proposer.setStatus('Y');
 
@@ -547,11 +572,12 @@ public class ProposalServiceImpl implements ProposalService {
                 Proposer saved = proposalRepo.save(proposer);
                 Long id = saved.getId();
                 proposer.setName(getCellString(row.getCell(1)));
-                responseExcell.setError("No error");
-                responseExcell.setField(String.valueOf(id));
-                responseExcell.setStatus(true);
-                responseExcelRepo.save(responseExcell);
+                responseExcel.setError("No error");
+                responseExcel.setField(String.valueOf(id));
+                responseExcel.setStatus(true);
+                responseExcelRepo.save(responseExcel);
                 savedExcelList.add(saved);
+                Successcount++;
 
 
             }
@@ -563,15 +589,19 @@ public class ProposalServiceImpl implements ProposalService {
 
 
 
-
     public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
         List<Proposer> savedExcelList = new ArrayList<>();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
 
+
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
+
+
+
+
                 if (row == null) continue;
                 ResponseExcel responseExcel = new ResponseExcel();
                 ResponseExcel responseExcell = new ResponseExcel();
@@ -792,6 +822,8 @@ public class ProposalServiceImpl implements ProposalService {
             return "";
         }
     }
+
+
 
 
 

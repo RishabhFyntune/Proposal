@@ -1,7 +1,5 @@
 package com.example.proposal.service;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import com.example.proposal.pagenation.ProposerPage;
@@ -9,7 +7,6 @@ import com.example.proposal.pagenation.ProposerPage;
 import com.example.proposal.dto.ProposerDTO;
 import com.example.proposal.model.Proposer;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.multipart.MultipartFile;
 
 
 public interface ProposalService
@@ -32,4 +29,7 @@ public interface ProposalService
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
 	public String sampleExcel(String httpServletResponse) throws Exception;
 //	public void saveFileData(MultipartFile multipartFile) throws IOException;
+	public Integer successRecord();
+	public Integer totalRecords();
+	//public long unsuccessRecord();
 }

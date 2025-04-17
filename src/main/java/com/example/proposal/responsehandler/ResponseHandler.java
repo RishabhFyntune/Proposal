@@ -5,6 +5,24 @@ public class ResponseHandler<Y> {
     private Object data;
     private String message;
     private long totalRecord;
+   //private long successRecord;
+    //private long UnSuccessRecord;
+
+   /* public long getUnSuccessRecord() {
+        return UnSuccessRecord;
+    }
+
+    public void setUnSuccessRecord(long unSuccessRecord) {
+        UnSuccessRecord = unSuccessRecord;
+    }*/
+
+    /*public long getSuccessRecord() {
+        return successRecord;
+    }
+
+    public void setSuccessRecord(long successRecord) {
+        this.successRecord = successRecord;
+    }*/
 
     public long getTotalRecord() {
         return totalRecord;
@@ -49,4 +67,6 @@ public class ResponseHandler<Y> {
     public void setMessage(String message) {
         this.message = message;
     }
+
+
 }
