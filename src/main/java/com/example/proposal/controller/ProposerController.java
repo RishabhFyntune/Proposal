@@ -8,7 +8,6 @@ import com.example.proposal.responsehandler.ResponseHandler;
 import com.example.proposal.service.ProposalService;
 import com.example.proposal.service.ProposalServiceImpl;
 import com.example.proposal.model.*;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -228,27 +227,31 @@ public class ProposerController {
         return responseHandler;
     }
 
-    ProposalServiceImpl proposalServices = new ProposalServiceImpl();
+//    ProposalServiceImpl proposalServices = new ProposalServiceImpl();
 
+  /*  public Map<String,Integer> getSuccessMap()
+    {
+        return proposalService.
+    }*/
     @PostMapping(value = "/import_Personal_Data", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler importPersonalDetails(
-            @Parameter(description = "Excel file to upload", required = true)
             @RequestParam("file") MultipartFile file) {
 
         ResponseHandler response = new ResponseHandler();
 
         try
         {
-            List<Proposer> savedExcelList = proposalService.importFromExcel(file);
+            HashMap<String, Object> savedMap = proposalService.importFromExcel(file);
+            List<Proposer> savedExcelList = (List<Proposer>) savedMap.get("Proposers");
+
             response.setStatus(true);
-            //response.setMessage("Excel imported successfully. Rows saved: " + savedExcelList.size());
             response.setData(savedExcelList);
-            response.setMessage("Successfull Data :- " + proposalService.successRecord() + "  Unsuccessfull Data :-  " + (proposalService.totalRecords() - proposalService.successRecord()));
+            response.setMessage(" Successfull Data : " + savedMap.get("Success") + " Unsuccessfull Data : " + savedMap.get("Unsuccess"));
             response.setTotalRecord(proposalService.totalRecords());
-            //response.setSuccessRecord(proposalService.successRecord());
-           // response.setUnSuccessRecord(proposalService.totalRecords() - proposalService.successRecord());
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
+            e.printStackTrace();
             response.setStatus(false);
             response.setMessage("Failed to import Excel file.");
             response.setData(new ArrayList<>());

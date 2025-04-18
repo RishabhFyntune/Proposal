@@ -364,28 +364,40 @@ public class ProposalServiceImpl implements ProposalService {
         return filePath;
     }
 
-    Integer Successcount;
+//    Integer Successcount;
     Integer totalCount = 0;
+//    Integer failureRecord ;
+
+  /*  @Override
+    public Integer unsuccessRecord() {
+        return failureRecord;
+    }
 
 
     @Override
     public Integer successRecord() {
         return Successcount;
-    }
+    }*/
 
     @Override
     public Integer totalRecords() {
         return totalCount;
     }
 
-    public List<Proposer> importFromExcel(MultipartFile file) throws IOException {
+
+    public HashMap<String,Object> importFromExcel(MultipartFile file) throws IOException {
 
         List<Proposer> savedExcelList = new ArrayList<>();
+        HashMap<String, Object> resultMap = new HashMap<>();
+
+        Integer successCount = 0;
+        Integer failureCount = 0;
+
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
             totalCount = sheet.getLastRowNum();
-            Successcount = 0;
+
 
 //            int count = 0;
 
@@ -395,7 +407,7 @@ public class ProposalServiceImpl implements ProposalService {
 
                 Proposer proposer = new Proposer();
                 ResponseExcel responseExcel = new ResponseExcel();
-                ResponseExcel responseExcell = new ResponseExcel();
+//                ResponseExcel responseExcell = new ResponseExcel();
 
 
                 String aadhar = isValid(row, 0);
@@ -405,8 +417,8 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("aadhar");
                     responseExcelRepo.save(responseExcel);
-                    System.err.println("I am in aadhar" + aadhar);
-
+//                    System.err.println("I am in aadhar" + aadhar);
+                    failureCount++;
                     continue;
                 } else {
                     proposer.setAadharnumber(getCellString(row.getCell(0)));
@@ -421,6 +433,7 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("name");
                     responseExcelRepo.save(responseExcel);
+                    failureCount++;
                     continue;
                 }
                 else
@@ -438,6 +451,7 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("gender");
                     responseExcelRepo.save(responseExcel);
+                    failureCount++;
                     continue;
 
                 }
@@ -475,6 +489,7 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("pan");
                     responseExcelRepo.save(responseExcel);
+                    failureCount++;
                    continue;
                 } else {
                     proposer.setPanNumber(getCellString(row.getCell(6)));
@@ -536,6 +551,7 @@ public class ProposalServiceImpl implements ProposalService {
                     responseExcel.setError("error");
                     responseExcel.setField("pincode");
                     responseExcelRepo.save(responseExcel);
+                    failureCount++;
                     continue;
                 }
                 else
@@ -577,14 +593,17 @@ public class ProposalServiceImpl implements ProposalService {
                 responseExcel.setStatus(true);
                 responseExcelRepo.save(responseExcel);
                 savedExcelList.add(saved);
-                Successcount++;
+                successCount++;
 
 
             }
 
         }
+        resultMap.put("Success", successCount);
+        resultMap.put("Unsuccess", failureCount);
+        resultMap.put("Proposers",savedExcelList);
 
-        return savedExcelList;
+        return resultMap;
     }
 
 

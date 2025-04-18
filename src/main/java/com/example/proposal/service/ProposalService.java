@@ -29,7 +29,7 @@ public interface ProposalService
 	public void generateExcel(HttpServletResponse httpServletResponse) throws Exception;
 	public String sampleExcel(String httpServletResponse) throws Exception;
 //	public void saveFileData(MultipartFile multipartFile) throws IOException;
-	public Integer successRecord();
+	//public Integer successRecord();
 	public Integer totalRecords();
-	//public long unsuccessRecord();
+	//public Integer unsuccessRecord();
 }
