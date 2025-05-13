@@ -1,5 +1,6 @@
 package com.example.proposal.service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import com.example.proposal.pagenation.ProposerPage;
@@ -7,6 +8,7 @@ import com.example.proposal.pagenation.ProposerPage;
 import com.example.proposal.dto.ProposerDTO;
 import com.example.proposal.model.Proposer;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 
 public interface ProposalService
@@ -31,5 +33,9 @@ public interface ProposalService
 //	public void saveFileData(MultipartFile multipartFile) throws IOException;
 	//public Integer successRecord();
 	public Integer totalRecords();
-	//public Integer unsuccessRecord();
+	//public Integer unsuccessRecord();\
+
+	public HashMap<String,Object> saveProposersFromExcelMandatoryUsingScheduler(MultipartFile multipartFile) throws Exception;
+	public void queueScheduler();
+
 }

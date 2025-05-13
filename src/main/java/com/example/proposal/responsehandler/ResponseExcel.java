@@ -3,6 +3,8 @@ package com.example.proposal.responsehandler;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "response_excel_table")
 public class ResponseExcel
@@ -25,14 +27,12 @@ public class ResponseExcel
     public ResponseExcel() {
     }
 
-    public ResponseExcel(Boolean status, String error, String field)
-    {
-
+    public ResponseExcel(Long id, Boolean status, String error, String field) {
+        this.id = id;
         this.status = status;
         this.error = error;
         this.field = field;
     }
-
 
     public Boolean getStatus() {
         return status;

@@ -110,8 +110,7 @@ public class ProposerController {
     }
 
     @PostMapping("pagination_filtering")
-    public ResponseHandler<List<Proposer>> getAllByPaging(@RequestBody ProposerPage proposerPage)
-    {
+    public ResponseHandler<List<Proposer>> getAllByPaging(@RequestBody ProposerPage proposerPage) {
         ResponseHandler<List<Proposer>> responseHandler = new ResponseHandler<>();
         try {
             List<Proposer> proposers = proposalService.getDetails(proposerPage);
@@ -120,15 +119,13 @@ public class ProposerController {
                 responseHandler.setStatus(false);
                 responseHandler.setData(Collections.emptyList());
                 responseHandler.setMessage("No proposers found.");
-            } else
-            {
+            } else {
                 responseHandler.setTotalRecord(proposalService.getTotalRecord());
                 responseHandler.setStatus(true);
                 responseHandler.setData(proposers);
                 responseHandler.setMessage("Proposers retrieved successfully.");
             }
-        } catch (IllegalArgumentException e)
-        {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
 //            responseHandler.setTotalRecord(proposers.size());
             responseHandler.setStatus(false);
@@ -182,9 +179,8 @@ public class ProposerController {
     }*/
 
 
-
     @GetMapping("excel")
-    public void generateExcelReport(HttpServletResponse response) throws Exception{
+    public void generateExcelReport(HttpServletResponse response) throws Exception {
 
         response.setContentType("application/octet-stream");
 
@@ -229,28 +225,23 @@ public class ProposerController {
 
 //    ProposalServiceImpl proposalServices = new ProposalServiceImpl();
 
-  /*  public Map<String,Integer> getSuccessMap()
-    {
-        return proposalService.
-    }*/
+    /*  public Map<String,Integer> getSuccessMap()
+      {
+          return proposalService.
+      }*/
     @PostMapping(value = "/import_Personal_Data", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseHandler importPersonalDetails(
             @RequestParam("file") MultipartFile file) {
 
         ResponseHandler response = new ResponseHandler();
 
-        try
-        {
-            HashMap<String, Object> savedMap = proposalService.importFromExcel(file);
-            List<Proposer> savedExcelList = (List<Proposer>) savedMap.get("Proposers");
+        try {
 
+            List<Proposer> proposers = proposalService.importPersonalDetailsFromExcel(file);
             response.setStatus(true);
-            response.setData(savedExcelList);
-            response.setMessage(" Successfull Data : " + savedMap.get("Success") + " Unsuccessfull Data : " + savedMap.get("Unsuccess"));
+            response.setData(proposers);
             response.setTotalRecord(proposalService.totalRecords());
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(false);
             response.setMessage("Failed to import Excel file.");
@@ -259,6 +250,40 @@ public class ProposerController {
 
         return response;
     }
+    @PostMapping(value = "/upload_excel_scheduler", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseHandler<String> uploadExcelMandatoryUsingScheduler(@RequestParam("file") MultipartFile file) {
+        ResponseHandler<String> responseHandler = new ResponseHandler<>();
+        try {
+            Map<String, Object> resultMap = proposalService.saveProposersFromExcelMandatoryUsingScheduler(file);
+            if (resultMap.containsKey("queueId")) {
+                responseHandler.setStatus(true);
+                responseHandler.setData(resultMap);
+                responseHandler.setMessage((String) resultMap.get("message"));
+                responseHandler.setTotalRecord((Integer) resultMap.get("rowCount"));
+                return responseHandler;
+            }
+            Integer total = (Integer) resultMap.get("totalCount");
+            Integer success = (Integer) resultMap.get("successCount");
+            Integer failed = (Integer) resultMap.get("failedCount");
+
+            List<Proposer> savedProposers = (List<Proposer>) resultMap.get("addedProposers");
+
+            responseHandler.setStatus(true);
+            responseHandler.setData(savedProposers);
+            responseHandler.setMessage(
+                    "Upload completed | total: " + total + " | success: " + success + " | failed: " + failed);
+            responseHandler.setTotalRecord(total);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseHandler.setStatus(false);
+            responseHandler.setData(new ArrayList<>());
+            responseHandler.setMessage("Failed to process Excel file.");
+        }
+
+        return responseHandler;
+    }
+
 
     // *********************************************** Enum *************************************************************
 
@@ -268,8 +293,7 @@ public class ProposerController {
     }
 
     @GetMapping("get_marital_status")
-    public List<MaritalStatus> getmarital()
-    {
+    public List<MaritalStatus> getmarital() {
         return Arrays.asList(MaritalStatus.values());
     }
 

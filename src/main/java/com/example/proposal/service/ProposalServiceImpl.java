@@ -1,14 +1,18 @@
 package com.example.proposal.service;
 
+import java.awt.geom.Area;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import com.example.proposal.model.*;
+import com.example.proposal.repository.QueueRepo;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
-import com.example.proposal.model.GenderType;
 import com.example.proposal.repository.responseExcelRepo;
 import com.example.proposal.responsehandler.ResponseExcel;
 import jakarta.persistence.criteria.*;
@@ -27,11 +31,11 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.example.proposal.dto.ProposerDTO;
 import com.example.proposal.repository.ProposalRepo;
-import com.example.proposal.model.Proposer;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
@@ -250,7 +254,7 @@ public class ProposalServiceImpl implements ProposalService {
         } else {
             predicate.add(criteriaBuilder.equal(root.get("status"), 'Y'));
         }
- 
+
 
         String sortBy1 = proposerPage.getSortBy();
         String sortOrder = proposerPage.getSortOrder();
@@ -364,20 +368,10 @@ public class ProposalServiceImpl implements ProposalService {
         return filePath;
     }
 
-//    Integer Successcount;
+    //    Integer Successcount;
     Integer totalCount = 0;
 //    Integer failureRecord ;
 
-  /*  @Override
-    public Integer unsuccessRecord() {
-        return failureRecord;
-    }
-
-
-    @Override
-    public Integer successRecord() {
-        return Successcount;
-    }*/
 
     @Override
     public Integer totalRecords() {
@@ -385,7 +379,7 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-    public HashMap<String,Object> importFromExcel(MultipartFile file) throws IOException {
+    public HashMap<String, Object> importFromExcel(MultipartFile file) throws IOException {
 
         List<Proposer> savedExcelList = new ArrayList<>();
         HashMap<String, Object> resultMap = new HashMap<>();
@@ -411,10 +405,9 @@ public class ProposalServiceImpl implements ProposalService {
 
 
                 String aadhar = isValid(row, 0);
-                if ( aadhar.isEmpty() )
-                {
+                if (aadhar.isEmpty()) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("aadhar");
                     responseExcelRepo.save(responseExcel);
 //                    System.err.println("I am in aadhar" + aadhar);
@@ -427,17 +420,14 @@ public class ProposalServiceImpl implements ProposalService {
 
                 String name = isValid(row, 1);
 
-                if (name == null || name.isEmpty())
-                {
+                if (name == null || name.isEmpty()) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("name");
                     responseExcelRepo.save(responseExcel);
                     failureCount++;
                     continue;
-                }
-                else
-                {
+                } else {
                     proposer.setName(getCellString(row.getCell(1)));
                 }
 
@@ -445,32 +435,27 @@ public class ProposalServiceImpl implements ProposalService {
                 String gender = isValid(row, 2);
                 //System.err.println("Above gender");
 
-                if (gender.isEmpty())
-                {
+                if (gender.isEmpty()) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("gender");
                     responseExcelRepo.save(responseExcel);
                     failureCount++;
                     continue;
 
-                }
-                else
-                {
+                } else {
                     proposer.setGender(getCellString(row.getCell(2)));
                 }
 
 
                 String state = isValid(row, 3);
 
-                if (!state.isEmpty())
-                {
+                if (!state.isEmpty()) {
                     proposer.setState(getCellString(row.getCell(3)));
                 }
 
                 String income = isValid(row, 5);
-                if(income != null)
-                {
+                if (income != null) {
                     proposer.setAnnualincome(getCellString(row.getCell(5)));
                 }
                /* else
@@ -483,21 +468,19 @@ public class ProposalServiceImpl implements ProposalService {
 
                 String pan = isValid(row, 6);
 
-                if (pan == null || !pan.matches( "[A-Z]{5}[0-9]{4}[A-Z]{1}") )
-                {
+                if (pan == null || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("pan");
                     responseExcelRepo.save(responseExcel);
                     failureCount++;
-                   continue;
+                    continue;
                 } else {
                     proposer.setPanNumber(getCellString(row.getCell(6)));
                 }
 
                 String marital = isValid(row, 7);
-                if(marital != null)
-                {
+                if (marital != null) {
                     proposer.setMaritalstatus(getCellString(row.getCell(7)));
                 }
                /* else
@@ -510,8 +493,7 @@ public class ProposalServiceImpl implements ProposalService {
 
                 String email = isValid(row, 8);
 
-                if (!email.isEmpty() && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"))
-                {
+                if (!email.isEmpty() && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")) {
                     proposer.setEmail(getCellString(row.getCell(8)));
                 }
                /* else
@@ -524,15 +506,13 @@ public class ProposalServiceImpl implements ProposalService {
 
                 String phone = isValid(row, 9);
 
-                if (!phone.isEmpty() && phone.matches("//d{10}"))
-                {
+                if (!phone.isEmpty() && phone.matches("//d{10}")) {
                     proposer.setPhoneNumber(getCellString(row.getCell(9)));
                 }
 
                 String address = isValid(row, 10);
 
-                if (!address.isEmpty())
-                {
+                if (!address.isEmpty()) {
                     proposer.setAddress(getCellString(row.getCell(10)));
                 }
               /*  else
@@ -545,24 +525,20 @@ public class ProposalServiceImpl implements ProposalService {
 
                 String pincode = isValid(row, 11);
 
-                if (pincode.isEmpty() || pincode.length() != 6)
-                {
+                if (pincode.isEmpty() || pincode.length() != 6) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("pincode");
                     responseExcelRepo.save(responseExcel);
                     failureCount++;
                     continue;
-                }
-                else
-                {
+                } else {
                     proposer.setPincode(getCellString(row.getCell(11)));
                 }
 
                 String city = isValid(row, 12);
 
-                if (!city.isEmpty())
-                {
+                if (!city.isEmpty()) {
                   /*  responseExcel.setStatus(false);
                     responseExcel.setError("error");
                     responseExcel.setField("city");
@@ -588,7 +564,7 @@ public class ProposalServiceImpl implements ProposalService {
                 Proposer saved = proposalRepo.save(proposer);
                 Long id = saved.getId();
                 proposer.setName(getCellString(row.getCell(1)));
-                responseExcel.setError("No error");
+//                responseExcel.setE/rror("No error");
                 responseExcel.setField(String.valueOf(id));
                 responseExcel.setStatus(true);
                 responseExcelRepo.save(responseExcel);
@@ -601,15 +577,27 @@ public class ProposalServiceImpl implements ProposalService {
         }
         resultMap.put("Success", successCount);
         resultMap.put("Unsuccess", failureCount);
-        resultMap.put("Proposers",savedExcelList);
+        resultMap.put("Proposers", savedExcelList);
 
         return resultMap;
     }
 
 
+    public Integer unsuccessRecord(Integer failureCount) {
+        return failureCount + 1;
+    }
+
+
+    Integer Successcount;
+
+    public Integer successRecord() {
+        return Successcount;
+    }
+
 
     public List<Proposer> importPersonalDetailsFromExcel(MultipartFile file) throws IOException {
         List<Proposer> savedExcelList = new ArrayList<>();
+//        List<String> errorExcelList = new ArrayList<>();
 
         try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
             XSSFSheet sheet = workbook.getSheetAt(0);
@@ -618,7 +606,7 @@ public class ProposalServiceImpl implements ProposalService {
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 XSSFRow row = sheet.getRow(i);
 
-
+                List<String> errorExcelList = new ArrayList<>();
 
 
                 if (row == null) continue;
@@ -640,14 +628,18 @@ public class ProposalServiceImpl implements ProposalService {
 
 
                 String aadhar = isValid(row, 0);
-                if (aadhar == null || aadhar.isEmpty()) {
+
+                if (aadhar.trim().isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("aadhar");
-                    responseExcelRepo.save(responseExcel);
-                } else
-                {
+//                    responseExcelRepo.save(responseExcel);
+//                    System.err.println("hiiii");
+                    errorExcelList.add("aadhar");
+
+
+                } else {
                     proposer.setAadharnumber(getCellString(row.getCell(0)));
                 }
 
@@ -656,10 +648,12 @@ public class ProposalServiceImpl implements ProposalService {
                 if (name == null || name.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("name");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("name");
+
+
                 } else {
                     proposer.setName(getCellString(row.getCell(1)));
                 }
@@ -670,10 +664,12 @@ public class ProposalServiceImpl implements ProposalService {
                 if (gender.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("gender");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("gender");
+
+
                 } else {
                     proposer.setGender(getCellString(row.getCell(2)));
                 }
@@ -684,25 +680,25 @@ public class ProposalServiceImpl implements ProposalService {
                 if (state.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("state");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("state");
+
                 } else {
                     proposer.setState(getCellString(row.getCell(3)));
                 }
 
                 String income = isValid(row, 5);
-                if(income == null)
-                {
+                if (income == null) {
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("income");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
-                }
-                else
-                {
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("income");
+
+
+                } else {
                     proposer.setAnnualincome(getCellString(row.getCell(5)));
                 }
 
@@ -711,10 +707,12 @@ public class ProposalServiceImpl implements ProposalService {
                 if (pan == null || pan.trim().isEmpty() || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("pan");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("pan");
+
+
                 } else {
                     proposer.setPanNumber(getCellString(row.getCell(6)));
                 }
@@ -726,11 +724,12 @@ public class ProposalServiceImpl implements ProposalService {
                 if (email.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("email");
                     // System.err.println("-----------------ofunr--------------------");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("email");
+
                 } else {
                     proposer.setEmail(getCellString(row.getCell(8)));
                 }
@@ -740,11 +739,13 @@ public class ProposalServiceImpl implements ProposalService {
                 if (phone.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("phone");
                     // System.err.println("-----------------ofunr--------------------");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("phone");
+
+
                 } else {
                     proposer.setPhoneNumber(getCellString(row.getCell(9)));
                 }
@@ -754,11 +755,13 @@ public class ProposalServiceImpl implements ProposalService {
                 if (address.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("address");
                     // System.err.println("-----------------ofunr--------------------");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("address");
+
+
                 } else {
                     proposer.setAddress(getCellString(row.getCell(10)));
                 }
@@ -768,11 +771,12 @@ public class ProposalServiceImpl implements ProposalService {
                 if (pincode.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("pincode");
                     // System.err.println("-----------------ofunr--------------------");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("pincode");
+
                 } else {
                     proposer.setPincode(getCellString(row.getCell(11)));
                 }
@@ -782,10 +786,11 @@ public class ProposalServiceImpl implements ProposalService {
                 if (city.isEmpty()) {
 
                     responseExcel.setStatus(false);
-                    responseExcel.setError("error");
+//                    responseExcel.setError("error");
                     responseExcel.setField("city");
-                    responseExcelRepo.save(responseExcel);
-                    continue;
+//                    responseExcelRepo.save(responseExcel);
+                    errorExcelList.add("city");
+
 
                 } else {
                     proposer.setCity(getCellString(row.getCell(12)));
@@ -799,12 +804,23 @@ public class ProposalServiceImpl implements ProposalService {
                 proposer.setGenderId(genderTable.get().getGenderID());
 
 
+                /*if(!errorExcelList.isEmpty())
+                {
+                    for(String error : errorExcelList)
+                    {
+                        ResponseExcel responseExcel1 = new ResponseExcel();
+                        responseExcel1.setError(error);
+
+                        responseExcelRepo.save(responseExcel1);
+                    }
+                }*/
                 Proposer saved = proposalRepo.save(proposer);
                 Long id = saved.getId();
                 proposer.setName(getCellString(row.getCell(1)));
-                responseExcell.setError("No error");
+//                responseExcell.setError("No error");
                 responseExcell.setField(String.valueOf(id));
                 responseExcell.setStatus(true);
+                responseExcell.setError((String.join(",", errorExcelList)));
                 responseExcelRepo.save(responseExcell);
                 savedExcelList.add(saved);
 
@@ -817,15 +833,12 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
-
-    private String isValid(Row row, int index)
-    {
+    private String isValid(Row row, int index) {
         Cell cell = row.getCell(index);
-        if(cell == null) return "";
+        if (cell == null) return "";
         return getCellString(cell).trim();
 
     }
-
 
 
     private String getCellString(Cell cell) {
@@ -1032,7 +1045,464 @@ public class ProposalServiceImpl implements ProposalService {
     }
 
 
+    @Autowired
+    QueueRepo queueRepo;
+
+    @Override
+    public HashMap<String, Object> saveProposersFromExcelMandatoryUsingScheduler(MultipartFile file) throws IOException {
+
+        String uploadDir = "D:\\";
+        File dir = new File(uploadDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        String filePath = uploadDir + fileName;
+
+        XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream());
+        XSSFSheet sheet = workbook.getSheetAt(0);
+
+
+        if (sheet.getLastRowNum() > 5) {
+            QueueTable queue = new QueueTable();
+            queue.setIsProcessed('N');
+            queue.setStatus('Y');
+            queue.setRowCount(sheet.getLastRowNum());
+            queue.setRowRead(0);
+            queue.setFilePath(filePath);
+            file.transferTo(new File(filePath));
+            queueRepo.save(queue);
+
+            HashMap<String, Object> scheduledResponse = new HashMap<>();
+            scheduledResponse.put("message", "File has been queued for processing in batches.");
+            scheduledResponse.put("rowCount", sheet.getLastRowNum());
+            scheduledResponse.put("filePath", filePath);
+            scheduledResponse.put("queueId", queue.getId());
+
+            workbook.close();
+            return scheduledResponse;
+        }
+
+        HashMap<String, Object> resultMap = new HashMap<>();
+        int successCount = 0;
+        int failedCount = 0;
+
+        try {
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                XSSFRow row = sheet.getRow(i);
+                if (row == null) continue;
+
+                List<String> errorFields = new ArrayList<>();
+                Proposer proposer = new Proposer();
+                ResponseExcel responseExcel = new ResponseExcel();
+
+                String aadhar = isValid(row, 0);
+                if (aadhar.trim().isEmpty()) errorFields.add("aadhar");
+                else proposer.setAadharnumber(getCellString(row.getCell(0)));
+
+
+                String name = isValid(row, 1);
+                if (name == null || name.isEmpty()) errorFields.add("name");
+                else proposer.setName(getCellString(row.getCell(1)));
+
+
+                String gender = isValid(row, 2);
+                if (gender.isEmpty()) errorFields.add("gender");
+                else proposer.setGender(getCellString(row.getCell(2)));
+
+
+                String state = isValid(row, 3);
+                if (state.isEmpty()) errorFields.add("state");
+                else proposer.setState(getCellString(row.getCell(3)));
+
+
+                Cell dobCell = row.getCell(4);
+                if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
+                    LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
+                    proposer.setDateOfBirth(dob.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+                } else {
+                    proposer.setDateOfBirth(getCellString(row.getCell(4)));
+                }
+
+
+                String income = isValid(row, 5);
+                if (income == null) errorFields.add("income");
+                else proposer.setAnnualincome(getCellString(row.getCell(5)));
+
+
+                String pan = isValid(row, 6);
+                if (pan == null || pan.trim().isEmpty() || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]{1}"))
+                    errorFields.add("pan");
+                else proposer.setPanNumber(getCellString(row.getCell(6)));
+
+
+                proposer.setMaritalstatus(getCellString(row.getCell(7)));
+
+
+                String email = isValid(row, 8);
+                if (email.isEmpty()) errorFields.add("email");
+                else proposer.setEmail(getCellString(row.getCell(8)));
+
+
+                String phone = isValid(row, 9);
+                if (phone.isEmpty()) errorFields.add("phone");
+                else proposer.setPhoneNumber(getCellString(row.getCell(9)));
+
+
+                String address = isValid(row, 10);
+                if (address.isEmpty()) errorFields.add("address");
+                else proposer.setAddress(getCellString(row.getCell(10)));
+
+
+                String pincode = isValid(row, 11);
+                if (pincode.isEmpty()) errorFields.add("pincode");
+                else proposer.setPincode(getCellString(row.getCell(11)));
+
+
+                String city = isValid(row, 12);
+                if (city.isEmpty()) errorFields.add("city");
+                else proposer.setCity(getCellString(row.getCell(12)));
+
+                if (!errorFields.isEmpty()) {
+                    responseExcel.setStatus(false);
+                    responseExcel.setField("Row: " + (i + 1));
+                    //responseExcel.setError((String.join(",", errorExcelList)));
+                    responseExcelRepo.save(responseExcel);
+                    failedCount++;
+                    continue;
+                }
+
+                proposer.setStatus('Y');
+
+
+                Optional<GenderType> genderTypeOpt = newProposerRepo.findByGenderType(proposer.getGender());
+                if (genderTypeOpt.isPresent()) {
+                    proposer.setGenderId(genderTypeOpt.get().getGenderID());
+                } else {
+                    responseExcel.setStatus(false);
+                    responseExcel.setField("gender");
+                    errorFields.add("gender (not found in DB)");
+                   // responseExcel.setError((String.join(",", errorExcelList)));
+                    responseExcelRepo.save(responseExcel);
+                    failedCount++;
+                    continue;
+                }
+
+
+                Proposer saved = proposalRepo.save(proposer);
+                responseExcel.setStatus(true);
+                responseExcel.setField("ID: " + saved.getId());
+                responseExcel.setError("No error");
+                responseExcelRepo.save(responseExcel);
+                successCount++;
+            }
+
+        } catch (Exception e) {
+            workbook.close();
+            throw new RuntimeException("Error processing Excel: " + e.getMessage(), e);
+        }
+
+        workbook.close();
+
+        resultMap.put("Success", successCount);
+        resultMap.put("Unsuccess", failedCount);
+        return resultMap;
+    }
+
+    @Override
+    @Scheduled(fixedDelay = 50000 )
+    public void queueScheduler()
+    {
+        List<QueueTable> queueTables = queueRepo.findByIsProcessed('N');
+        for (QueueTable queue : queueTables) {
+            int lastProcessedRow = queue.getLastProcessedRow() != null ? queue.getLastProcessedRow() : 0;
+            String filePath = queue.getFilePath();
+
+            File file = new File(filePath);
+            if (file.exists()) {
+
+                try {
+                    FileInputStream fileInputStream = new FileInputStream(file);
+                    XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
+                    XSSFSheet sheet = workbook.getSheetAt(0);
+                    int totalRows = sheet.getLastRowNum();
+                    int rowsToProcess = 5;
+                    int startRow = lastProcessedRow + 1;
+                    int endRow = Math.min(startRow + rowsToProcess - 1, totalRows);
+                    int batchSize = 10;
+                    int processedCount = 0;
+                    int batchNumber = (startRow - 1) / batchSize + 1;
+
+                    System.out.println(" Starting Batch " + batchNumber);
+                    System.out.println(" Processing rows from " + startRow + " to " + endRow);
+
+                    for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                        XSSFRow row = sheet.getRow(i);
+
+                        List<String> errorExcelList = new ArrayList<>();
+
+
+                        if (row == null) continue;
+                        ResponseExcel responseExcel = new ResponseExcel();
+                        ResponseExcel responseExcell = new ResponseExcel();
+                        Proposer proposer = new Proposer();
+
+
+                        Cell dobCell = row.getCell(4); // Use correct DOB index!
+                        if (dobCell != null && dobCell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(dobCell)) {
+                            LocalDate dob = dobCell.getLocalDateTimeCellValue().toLocalDate();
+                            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                            proposer.setDateOfBirth(dob.format(formatter));
+//                    dto.setDateOfBirth(dobCell.getLocalDateTimeCellValue().toLocalDate());
+
+                        } else {
+                            proposer.setDateOfBirth(getCellString(row.getCell(4)));
+                        }
+
+
+                        String aadhar = isValid(row, 0);
+
+                        if (aadhar.trim().isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("aadhar");
+//                    responseExcelRepo.save(responseExcel);
+//                    System.err.println("hiiii");
+                            errorExcelList.add("aadhar");
+
+
+                        } else {
+                            proposer.setAadharnumber(getCellString(row.getCell(0)));
+                        }
+
+                        String name = isValid(row, 1);
+
+                        if (name == null || name.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("name");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("name");
+
+
+                        } else {
+                            proposer.setName(getCellString(row.getCell(1)));
+                        }
+
+
+                        String gender = isValid(row, 2);
+
+                        if (gender.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("gender");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("gender");
+
+
+                        } else {
+                            proposer.setGender(getCellString(row.getCell(2)));
+                        }
+
+
+                        String state = isValid(row, 3);
+
+                        if (state.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("state");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("state");
+
+                        } else {
+                            proposer.setState(getCellString(row.getCell(3)));
+                        }
+
+                        String income = isValid(row, 5);
+                        if (income == null) {
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("income");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("income");
+
+
+                        } else {
+                            proposer.setAnnualincome(getCellString(row.getCell(5)));
+                        }
+
+                        String pan = isValid(row, 6);
+
+                        if (pan == null || pan.trim().isEmpty() || !pan.matches("[A-Z]{5}[0-9]{4}[A-Z]{1}")) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("pan");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("pan");
+
+
+                        } else {
+                            proposer.setPanNumber(getCellString(row.getCell(6)));
+                        }
+
+                        String marital = isValid(row, 7);
+                        proposer.setMaritalstatus(getCellString(row.getCell(7)));
+                        String email = isValid(row, 8);
+
+                        if (email.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("email");
+                            // System.err.println("-----------------ofunr--------------------");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("email");
+
+                        } else {
+                            proposer.setEmail(getCellString(row.getCell(8)));
+                        }
+
+                        String phone = isValid(row, 9);
+
+                        if (phone.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("phone");
+                            // System.err.println("-----------------ofunr--------------------");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("phone");
+
+
+                        } else {
+                            proposer.setPhoneNumber(getCellString(row.getCell(9)));
+                        }
+
+                        String address = isValid(row, 10);
+
+                        if (address.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("address");
+                            // System.err.println("-----------------ofunr--------------------");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("address");
+
+
+                        } else {
+                            proposer.setAddress(getCellString(row.getCell(10)));
+                        }
+
+                        String pincode = isValid(row, 11);
+
+                        if (pincode.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("pincode");
+                            // System.err.println("-----------------ofunr--------------------");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("pincode");
+
+                        } else {
+                            proposer.setPincode(getCellString(row.getCell(11)));
+                        }
+
+                        String city = isValid(row, 12);
+
+                        if (city.isEmpty()) {
+
+                            responseExcel.setStatus(false);
+//                    responseExcel.setError("error");
+                            responseExcel.setField("city");
+//                    responseExcelRepo.save(responseExcel);
+                            errorExcelList.add("city");
+
+
+                        } else {
+                            proposer.setCity(getCellString(row.getCell(12)));
+                        }
+
+
+                        proposer.setStatus('Y');
+
+                        String genderType = proposer.getGender().toString();
+                        Optional<GenderType> genderTable = newProposerRepo.findByGenderType(genderType);
+                        proposer.setGenderId(genderTable.get().getGenderID());
+
+
+                /*if(!errorExcelList.isEmpty())
+                {
+                    for(String error : errorExcelList)
+                    {
+                        ResponseExcel responseExcel1 = new ResponseExcel();
+                        responseExcel1.setError(error);
+
+                        responseExcelRepo.save(responseExcel1);
+                    }
+                }*/
+                        Proposer saved = proposalRepo.save(proposer);
+                        Long id = saved.getId();
+                        proposer.setName(getCellString(row.getCell(1)));
+//                responseExcell.setError("No error");
+                        responseExcell.setField(String.valueOf(id));
+                        responseExcell.setStatus(true);
+                        responseExcell.setError((String.join(",", errorExcelList)));
+                        responseExcelRepo.save(responseExcell);
+//                        savedExcelList.add(saved);
+
+
+                        if (!errorExcelList.isEmpty()) {
+                            Long queueId  =  queue.getId();
+                            for( String error :errorExcelList) {
+                                ResponseExcel responceExcel = new ResponseExcel();
+                                responceExcel.setStatus(false);
+                                responceExcel.setError((String.join(",", errorExcelList)));
+                               // responceExcel.setReason( error + " error in field"  );
+//                                responceExcel.setId(queueId);
+                                responseExcelRepo.save(responceExcel);
+
+                            }
+
+                        } else {
+                            ResponseExcel responceExcel = new ResponseExcel();
+                            Proposer savedProposer = proposalRepo.save(proposer);
+                            responceExcel.setStatus(true);
+                            responceExcel.setError((String.join(",", errorExcelList)));
+
+
+                            responseExcelRepo.save(responceExcel);
+                        }
+
+                        processedCount++;
+                        queue.setRowRead(i);
+                        queue.setLastProcessedRow(i);
+                        if (queue.getLastProcessedRow() >= totalRows) {
+                            queue.setIsProcessed('Y');
+                        }
+                        queueRepo.save(queue);
+                    }
+
+                    System.out.println("scheduled");
+                } catch (IOException e) {
+
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 }
+
+
+
+
 
 
 
