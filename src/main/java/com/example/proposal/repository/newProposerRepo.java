@@ -1,6 +1,6 @@
 package com.example.proposal.repository;
 
-import com.example.proposal.model.GenderType;
+import com.example.proposal.entity.GenderType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

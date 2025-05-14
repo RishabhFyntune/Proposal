@@ -1,4 +1,4 @@
-package com.example.proposal.model;
+package com.example.proposal.entity;
 
 public enum MaritalStatus 
 {

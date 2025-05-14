@@ -1,6 +1,5 @@
-package com.example.proposal.service;
+package com.example.proposal.ServiceImpl;
 
-import java.awt.geom.Area;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,12 +8,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import com.example.proposal.model.*;
+import com.example.proposal.entity.*;
 import com.example.proposal.repository.QueueRepo;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
 import com.example.proposal.repository.responseExcelRepo;
 import com.example.proposal.responsehandler.ResponseExcel;
+import com.example.proposal.service.ProposalService;
 import jakarta.persistence.criteria.*;
 
 import com.example.proposal.pagenation.ProposerPage;
@@ -1466,7 +1466,7 @@ public class ProposalServiceImpl implements ProposalService {
                                 responceExcel.setStatus(false);
                                 responceExcel.setError((String.join(",", errorExcelList)));
                                // responceExcel.setReason( error + " error in field"  );
-//                                responceExcel.setId(queueId);
+                                responceExcel.setId(queueId);
                                 responseExcelRepo.save(responceExcel);
 
                             }
@@ -1498,6 +1498,8 @@ public class ProposalServiceImpl implements ProposalService {
             }
         }
     }
+
+
 }
 
 

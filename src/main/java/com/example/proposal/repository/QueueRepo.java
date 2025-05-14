@@ -1,6 +1,6 @@
 package com.example.proposal.repository;
 
-import com.example.proposal.model.QueueTable;
+import com.example.proposal.entity.QueueTable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

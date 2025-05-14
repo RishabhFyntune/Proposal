@@ -5,7 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.proposal.model.Proposer;
+import com.example.proposal.entity.Proposer;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
