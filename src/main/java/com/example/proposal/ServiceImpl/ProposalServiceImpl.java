@@ -13,7 +13,8 @@ import com.example.proposal.repository.QueueRepo;
 import com.example.proposal.repository.newProposerRepo;
 //import com.example.proposal.model.Gender;
 import com.example.proposal.repository.responseExcelRepo;
-import com.example.proposal.responsehandler.ResponseExcel;
+import com.example.proposal.response.ProposerResponse;
+import com.example.proposal.response.ResponseExcel;
 import com.example.proposal.service.ProposalService;
 import jakarta.persistence.criteria.*;
 
@@ -34,7 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import com.example.proposal.dto.ProposerDTO;
+import com.example.proposal.dto.ProposerDto;
 import com.example.proposal.repository.ProposalRepo;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.poi.ss.usermodel.Cell;
@@ -86,33 +87,65 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public Proposer update(Long id, Proposer proposer) {
+    public ProposerResponse update(Long id, Proposer proposer) {
         Optional<Proposer> getpropose = proposalRepo.findById(id);
 
-        Proposer oldproposer = getpropose.get();
-        oldproposer.setAadharnumber(proposer.getAadharnumber());
-        oldproposer.setAddress(proposer.getAddress());
-        oldproposer.setAnnualincome(proposer.getAnnualincome());
-        oldproposer.setCity(proposer.getCity());
-        oldproposer.setDateOfBirth(proposer.getDateOfBirth());
-        oldproposer.setEmail(proposer.getEmail());
-        oldproposer.setGender(proposer.getGender());
-        oldproposer.setId(proposer.getId());
-        oldproposer.setMaritalstatus(proposer.getMaritalstatus());
-        oldproposer.setName(proposer.getName());
-        oldproposer.setPanNumber(proposer.getPanNumber());
-        oldproposer.setPhoneNumber(proposer.getPhoneNumber());
-        oldproposer.setPincode(proposer.getPincode());
-        oldproposer.setState(proposer.getState());
+        ProposerResponse response = new ProposerResponse();
+
+        response.setAadharnumber(proposer.getAadharnumber());
+        response.setAddress(proposer.getAddress());
+        response.setAnnualincome(proposer.getAnnualincome());
+        response.setCity(proposer.getCity());
+        response.setDateOfBirth(proposer.getDateOfBirth());
+        response.setEmail(proposer.getEmail());
+        response.setGender(proposer.getGender());
+        response.setId(proposer.getId());
+        response.setMaritalstatus(proposer.getMaritalstatus());
+        response.setName(proposer.getName());
+        response.setPanNumber(proposer.getPanNumber());
+        response.setPhoneNumber(proposer.getPhoneNumber());
+        response.setPincode(proposer.getPincode());
+        response.setState(proposer.getState());
 
 
-        Proposer updatedProposer = proposalRepo.save(oldproposer);
-        return updatedProposer;
+        return response;
 
     }
 
     @Override
-    public Proposer saveProposerDto(ProposerDTO proposerDTO) {
+    public ProposerResponse getUserById(Integer userId)
+    {
+        Proposer proposer = proposalRepo.findByIdAndStatus(userId, 'Y');
+
+        if (proposer == null)
+        {
+            throw new IllegalArgumentException("User Record Not Found Or Invalid UserId");
+        }
+
+        ProposerResponse response = new ProposerResponse();
+
+        response.setAadharnumber(proposer.getAadharnumber());
+        response.setAddress(proposer.getAddress());
+        response.setAnnualincome(proposer.getAnnualincome());
+        response.setCity(proposer.getCity());
+        response.setDateOfBirth(proposer.getDateOfBirth());
+        response.setEmail(proposer.getEmail());
+        response.setGender(proposer.getGender());
+        response.setId(proposer.getId());
+        response.setMaritalstatus(proposer.getMaritalstatus());
+        response.setName(proposer.getName());
+        response.setPanNumber(proposer.getPanNumber());
+        response.setPhoneNumber(proposer.getPhoneNumber());
+        response.setPincode(proposer.getPincode());
+        response.setState(proposer.getState());
+
+        return response;
+
+    }
+
+    @Override
+    public Proposer saveProposerDto(ProposerDto proposerDTO)
+    {
         Proposer proposer = new Proposer();
 
         String genderType = proposerDTO.getGender();
@@ -290,7 +323,6 @@ public class ProposalServiceImpl implements ProposalService {
         int sized = resultList.size();
         totalRecord = sized;
 
-        System.err.println(sized);
         if (page > 0 && size > 0) {
 
             typedQuery.setFirstResult((page - 1) * size);
@@ -955,7 +987,7 @@ public class ProposalServiceImpl implements ProposalService {
 
 
     @Override
-    public Proposer updateDto(Long id, ProposerDTO proposerDTO) {
+    public Proposer updateDto(Long id, ProposerDto proposerDTO) {
 
         Proposer proposer = new Proposer();
 

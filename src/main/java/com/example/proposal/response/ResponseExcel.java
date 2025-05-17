@@ -1,9 +1,7 @@
-package com.example.proposal.responsehandler;
+package com.example.proposal.response;
 
 
 import jakarta.persistence.*;
-
-import java.util.List;
 
 @Entity
 @Table(name = "response_excel_table")

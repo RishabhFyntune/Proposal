@@ -1,10 +1,11 @@
-package com.example.proposal.dto;
+package com.example.proposal.response;
 
-
-public class ProposerDTO {
-    
+public class ProposerResponse
+{
+    private Long Id;
     private String name;
     private String gender;
+    private int genderId;
     private String dateOfBirth;
     private String annualincome;
     private String panNumber;
@@ -16,30 +17,13 @@ public class ProposerDTO {
     private String pincode;
     private String city;
     private String state;
-    private Character status;
 
- 
-    public ProposerDTO() {
+    public Long getId() {
+        return Id;
     }
 
-    public ProposerDTO(String name, String gender, String dateOfBirth, String annualincome,
-                       String panNumber, String aadharnumber, String maritalstatus,
-                       String email, String phoneNumber, String address, String pincode,
-                       String city, String state, Character status) {
-        this.name = name;
-        this.gender = gender;
-        this.dateOfBirth = dateOfBirth;
-        this.annualincome = annualincome;
-        this.panNumber = panNumber;
-        this.aadharnumber = aadharnumber;
-        this.maritalstatus = maritalstatus;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
-        this.address = address;
-        this.pincode = pincode;
-        this.city = city;
-        this.state = state;
-        this.status = status;
+    public void setId(Long id) {
+        Id = id;
     }
 
     public String getName() {
@@ -56,6 +40,14 @@ public class ProposerDTO {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public int getGenderId() {
+        return genderId;
+    }
+
+    public void setGenderId(int genderId) {
+        this.genderId = genderId;
     }
 
     public String getDateOfBirth() {
@@ -144,13 +136,5 @@ public class ProposerDTO {
 
     public void setState(String state) {
         this.state = state;
-    }
-
-    public Character getStatus() {
-        return status;
-    }
-
-    public void setStatus(Character status) {
-        this.status = status;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.proposal.responsehandler;
+package com.example.proposal.response;
 
 public class ResponseHandler<Y> {
     private boolean status;

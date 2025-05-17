@@ -20,5 +20,7 @@ public interface ProposalRepo extends JpaRepository<Proposer, Long>
    List<Proposer> findByStatus(Character status);
    boolean existsByEmail(String email);
    boolean existsByPhoneNumber(String phoneNumber);
+
+   Proposer findByIdAndStatus(Integer userId, Character status);
 //   public Proposer proposerGenderId(int id);
 }

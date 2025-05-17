@@ -2,15 +2,17 @@ package com.example.proposal.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+
 
 @Entity
 @Table(name = "user_table")
-public class User
+public class Users
 {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer userId;
+    private Long userId;
 
     @Column(name = "user_name")
     private String userName;
@@ -25,7 +27,12 @@ public class User
     private String email;
 
 
-    public User(Integer userId, String userName, String userPassword, String role, String email) {
+    public Users()
+    {
+        super();
+    }
+
+    public Users(Long userId, String userName, String userPassword, String role, String email) {
         this.userId = userId;
         this.userName = userName;
         this.userPassword = userPassword;
@@ -33,11 +40,14 @@ public class User
         this.email = email;
     }
 
-    public Integer getUserId() {
+    public <E> Users(String userName, String userPassword, ArrayList<E> es) {
+    }
+
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
