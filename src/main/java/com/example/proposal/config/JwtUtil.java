@@ -79,7 +79,7 @@ public class JwtUtil {
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
-
+//int i = 0;
 
     public boolean validateToken(String token, String expectedUsername, Long expectedUserId, String expectedEmail,
                                  String expectedRole) {
@@ -90,12 +90,14 @@ public class JwtUtil {
             String email =extractEmail(token);
             String role = extractRole(token);
 
-
             System.out.println("Username: expected=" + expectedUsername + ", actual=" + username);
             System.out.println("UserId: expected=" + expectedUserId + ", actual=" + userId);
             System.out.println("Email: expected=" + expectedEmail + ", actual=" + email);
             System.out.println("Role: expected=" + expectedRole + ", actual=" + role);
             System.out.println("Token expired: " + isTokenExpired(token));
+//            System.err.println(i++);
+            //System.out.println("Called on thread: " + Thread.currentThread().getName());
+
 
 
             return expectedUsername.equals(username) && expectedUserId.equals(userId) && expectedEmail.equals(email)

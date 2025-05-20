@@ -24,4 +24,15 @@ public class commonLogic {
                 "sortOrder": ""
         }*/
 
+    // Swagger
+
+                                     /*   "/v3/api-docs/**",
+                                                "/api-docs/**"
+                                "swagger-ui/index.html",
+                                        "/v3/api-docs/**",
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/swagger-resources/**",
+                                        "/webjars/**",
+*/
 }

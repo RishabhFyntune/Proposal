@@ -34,6 +34,26 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 
 
+
+        String path = request.getRequestURI();
+        String method = request.getMethod();
+
+        // Skip OPTIONS (preflight) requests
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+        if (path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
+                path.startsWith("/swagger-resources") ||
+                path.startsWith("/webjars") ||
+                path.contains("favicon.ico")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
+
         final String authorizationHeader = request.getHeader("Authorization");
 
 

@@ -31,7 +31,8 @@ public class ProposerController {
 
 
     @PostMapping("/proposer_register")
-    public ResponseHandler dto_register(@RequestBody ProposerDto proposerDTO) {
+    public ResponseHandler dto_register(@RequestBody ProposerDto proposerDTO)
+    {
         ResponseHandler responseHandler = new ResponseHandler<>();
         try {
             responseHandler.setTotalRecord(proposalRepo.count());
@@ -39,6 +40,7 @@ public class ProposerController {
             responseHandler.setData(registerDto);
             responseHandler.setStatus(true);
             responseHandler.setMessage("Proposer registered successfully");
+
         }
        /* catch (IllegalArgumentException e)
         {
